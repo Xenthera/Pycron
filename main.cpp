@@ -1,6 +1,10 @@
-#include <iostream>
+#include "pocketpy.h"
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+
+    pkpy::VM* vm = new pkpy::VM();
+
+    vm->exec("print('hello world')");
+
     return 0;
 }
