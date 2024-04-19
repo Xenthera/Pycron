@@ -4,11 +4,15 @@
 
 using namespace std;
 
-const int virtualScreenWidth = 240;
-const int virtualScreenHeight = 136;
+const int virtualScreenWidth = 360;
+const int virtualScreenHeight = 203;
+const int initialScale = 3;
 
-int screenWidth = virtualScreenWidth * 4;
-int screenHeight = virtualScreenHeight * 4;
+int startupScreenWidth = virtualScreenWidth * initialScale;
+int startupScreenHeight = virtualScreenHeight * initialScale;
+
+int screenWidth = startupScreenWidth;
+int screenHeight = startupScreenHeight;
 
 void calculateBounds(Rectangle& bounds, Vector2& origin) {
 
@@ -29,12 +33,15 @@ void calculateBounds(Rectangle& bounds, Vector2& origin) {
 }
 
 int main() {
-    const float virtualRatio = (float)screenWidth/(float)virtualScreenWidth;
+
+    SetTraceLogLevel(LOG_ERROR);
+
+    bool flip = false;
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 
-    InitWindow(screenWidth, screenHeight, "test");
-    SetTargetFPS(60);
+    InitWindow(startupScreenWidth, startupScreenHeight, "test");
+    SetTargetFPS(-1);
 
     RenderTexture2D virtualScreen = LoadRenderTexture(virtualScreenWidth, virtualScreenHeight);
     Rectangle sourceRec = { 0.0f, 0.0f, (float)virtualScreen.texture.width, -(float)virtualScreen.texture.height };
@@ -43,7 +50,6 @@ int main() {
     calculateBounds(virtualScreenBounds, origin);
 
     pkpy::VM* vm = new pkpy::VM();
-
 
     Texture2D logo = LoadTexture("resources/img.png");
 
@@ -65,18 +71,27 @@ int main() {
         }
 
         if (IsKeyPressed(KEY_F)) {
-            int monitor = GetCurrentMonitor();
-            SetWindowSize(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
-            screenWidth = GetScreenWidth();
-            screenHeight = GetScreenHeight();
+            if(IsWindowFullscreen()){
+                ToggleFullscreen();
+                SetWindowSize(startupScreenWidth, startupScreenHeight);
+                screenWidth = startupScreenWidth;
+                screenHeight = startupScreenHeight;
+            }else{
+                int monitor = GetCurrentMonitor();
+                SetWindowSize(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
+                screenWidth = GetMonitorWidth(monitor);
+                screenHeight = GetMonitorHeight(monitor);
+                ToggleFullscreen();
+            }
             calculateBounds(virtualScreenBounds, origin);
-            ToggleFullscreen();
+        }else if(IsKeyPressed(KEY_I)){
+            flip = !flip;
         }
 
         BeginTextureMode(virtualScreen);
-            ClearBackground(GRAY);
-            DrawText("Hello World", 5, 5, 5, RAYWHITE);
-            DrawTexture(logo, 5, 20, WHITE);
+            ClearBackground(BLUE);
+            DrawText(("Hello World " + to_string(GetFPS()) + " FPS").c_str(), 5, 5, 5, RAYWHITE);
+            DrawTexture(logo, 80 + cos(GetTime()) * (virtualScreenHeight / 4), (virtualScreenHeight / 2) + sin(GetTime()) * (virtualScreenHeight / 4) - 29, WHITE);
             DrawLineBezier((Vector2){80, 20}, (Vector2){virtualScreenWidth - 5, virtualScreenHeight - 5}, 1, GREEN);
             DrawCircle(virtualScreenWidth / 2, virtualScreenHeight / 2, 15, GREEN);
             DrawCircle(virtualScreenWidth / 2, virtualScreenHeight / 2, 13, YELLOW);
@@ -86,6 +101,24 @@ int main() {
             DrawCircle(virtualScreenWidth / 2, virtualScreenHeight / 2, 5, BLUE);
 
         EndTextureMode();
+
+        if(flip){
+            // Get texture data
+            Image img = LoadImageFromTexture(virtualScreen.texture);
+            Color* pixels = LoadImageColors(img);
+
+            // Modify pixel data
+            for (int y = 0; y < img.height; y++) {
+                for (int x = 0; x < img.width; x++) {
+                    // Example: Invert colors
+                    Color pixel = pixels[y * img.width + x];
+                    pixels[y * img.width + x] = { (unsigned char)(255 - pixel.g), (unsigned char)(255 - pixel.r), (unsigned char)(255 - pixel.b), pixel.a };
+                }
+            }
+
+            // Update texture with modified data
+            UpdateTexture(virtualScreen.texture, pixels);
+        }
 
         BeginDrawing();
             ClearBackground(BLACK);
