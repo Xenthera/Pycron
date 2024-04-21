@@ -1,43 +1,22 @@
 #pragma once
-#include <fstream>
 #include <algorithm>
-
-#include "raylib.h"
 #include "pocketpy.h"
+#include "Graphics/Graphics.h"
 
 class Pycron {
 
-public:
+private:
     const int virtualScreenWidth = 360;
     const int virtualScreenHeight = 203;
     const int initialScale = 3;
-
-    int startupScreenWidth = virtualScreenWidth * initialScale;
-    int startupScreenHeight = virtualScreenHeight * initialScale;
-
-    int screenWidth = startupScreenWidth;
-    int screenHeight = startupScreenHeight;
-
-    Rectangle virtualScreenBounds;
-    Vector2 origin;
-    std::vector<Color> palette;
-    RenderTexture2D virtualScreen;
-    Rectangle sourceRec;
-    Texture2D mouse;
-
-    bool shouldClose = false;
-
+    Graphics* graphics;
     pkpy::VM* vm;
 
+public:
     Pycron();
     ~Pycron();
 
-    void calculateBounds();
     void StartGameLoop();
-    Color ColorFromHex(int hexValue);
-    void loadPalette(std::string& path);
 
-    int mouseX();
-    int mouseY();
 };
 

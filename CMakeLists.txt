@@ -25,7 +25,11 @@ set(PROJECT_INCLUDE "${CMAKE_CURRENT_LIST_DIR}/sources/") # Define PROJECT_INCLU
 
 add_executable(UnnamedMicroPythonConsole src/main.cpp
         src/Pycron.cpp
-        src/Pycron.h)
+        src/Pycron.h
+        src/Utilities.cpp
+        src/Utilities.h
+        src/Graphics/Graphics.cpp
+        src/Graphics/Graphics.h)
 
 add_subdirectory(dependencies/pocketpy)
 # Declaring our executable
