@@ -57,7 +57,7 @@ void Graphics::renderVirtualScreen() {
     EndDrawing();
 }
 
-void Graphics::loadPalette(std::string &path) {
+void Graphics::loadPalette(std::string path) {
     std::ifstream paletteFile(path);
     std::string line;
 

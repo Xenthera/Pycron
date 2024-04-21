@@ -1,6 +1,7 @@
 #pragma once
 #include "raylib.h"
 #include <algorithm>
+#include <vector>
 
 class Graphics {
 
@@ -35,7 +36,7 @@ public:
 
     void draw();
 
-    void loadPalette(std::string& path);
+    void loadPalette(std::string path);
     int mouseX();
     int mouseY();
     void toggleFullScreen();

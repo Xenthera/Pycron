@@ -9,7 +9,7 @@ Pycron::Pycron() {
     SetTraceLogLevel(LOG_ERROR);
 
     graphics = new Graphics{virtualScreenWidth, virtualScreenHeight, initialScale};
-    graphics->loadPalette((std::string &) "../resources/palette2.hex");
+    graphics->loadPalette("../resources/palette2.hex");
 
     vm = new pkpy::VM();
 
