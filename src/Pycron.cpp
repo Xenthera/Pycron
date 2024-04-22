@@ -29,7 +29,6 @@ Pycron::Pycron() {
     graphics->loadPalette("../resources/palette2.hex");
 
     vm = new pkpy::VM();
-
     bindMethods(vm);
 
     graphics->bindMethods(vm);
@@ -37,6 +36,7 @@ Pycron::Pycron() {
     std::string python = loadFileToString("../python/main.py");
 
     graphics->beginDraw();
+    graphics->Clear(0);
     try {
         pkpy::CodeObject_ code = vm->compile(python, "main.py", pkpy::EXEC_MODE, false);
         vm->_exec(code, vm->_main);
@@ -66,9 +66,10 @@ void Pycron::StartGameLoop() {
 }
 
 void Pycron::bindMethods(pkpy::VM *vm) {
-    vm->bind(vm->builtins, "rnd(min: int, max: int) -> int", reinterpret_cast<pkpy::NativeFuncC>(getRandomNumber));
-    vm->bind(vm->builtins, "sin(num: float) -> float", reinterpret_cast<pkpy::NativeFuncC>(getSin));
-    vm->bind(vm->builtins, "cos(num: float) -> float", reinterpret_cast<pkpy::NativeFuncC>(getCos));
+    vm->bind(vm->builtins, "rnd(min: int, max: int) -> int", getRandomNumber);
+    vm->bind(vm->builtins, "sin(num: float) -> float", getSin);
+    vm->bind(vm->builtins, "cos(num: float) -> float", getCos);
+    vm->bind(vm->builtins, "fps() -> int", getFPS);
 }
 
 
@@ -94,5 +95,9 @@ pkpy::PyObject* Pycron::getSin(pkpy::VM* vm, pkpy::ArgsView args) {
 pkpy::PyObject* Pycron::getCos(pkpy::VM* vm, pkpy::ArgsView args) {
     auto num = pkpy::py_cast<double>(vm, args[0]);
     return pkpy::py_var(vm, cos(num));
+}
+
+pkpy::PyObject* Pycron::getFPS(pkpy::VM* vm, pkpy::ArgsView args) {
+    return pkpy::py_var(vm, GetFPS());
 }
 

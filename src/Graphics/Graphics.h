@@ -54,9 +54,10 @@ public:
     void searchForDrawFunc(pkpy::VM* vm);
 
 
-    static void Clear(pkpy::VM* vm, pkpy::ArgsView args);
-    static void Pixel(pkpy::VM* vm, pkpy::ArgsView args);
-    static void Circle(pkpy::VM* vm, pkpy::ArgsView args);
+    void Clear(int paletteIndex);
+    void Pixel(int x, int y, int paletteIndex);
+    void Circle(int x, int y, int radius, int paletteIndex);
+    void Text(std::string s, int x, int y, int paletteIndex);
 
 
 };

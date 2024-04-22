@@ -33,6 +33,9 @@ Graphics::Graphics(int screenWidth, int screenHeight, int startupScale) : screen
 
 void Graphics::draw(pkpy::VM* vm) {
 
+    vm->builtins->attr().set("mouseX", pkpy::py_var(vm, mouseX()));
+    vm->builtins->attr().set("mouseY", pkpy::py_var(vm, mouseY()));
+
     windowShouldClose = WindowShouldClose();
 
     if (IsWindowResized()) {
@@ -49,6 +52,9 @@ void Graphics::draw(pkpy::VM* vm) {
         } catch(pkpy::Exception e){
             std::cout << e.summary() << std::endl;
         }
+
+        Circle(150,100,50,1);
+        Text("Hello from C++", 120, 95, 9);
     //////////
     EndTextureMode();
 
@@ -111,39 +117,68 @@ void Graphics::toggleFullScreen() {
         windowHeight = startupScreenHeight;
     } else {
         int monitor = GetCurrentMonitor();
-        SetWindowSize(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
         windowWidth = GetMonitorWidth(monitor);
         windowHeight = GetMonitorHeight(monitor);
+        SetWindowSize(windowWidth, windowHeight);
         ToggleFullscreen();
+
     }
     calculateScreenPositionInWindow();
 }
 
 void Graphics::bindMethods(pkpy::VM *vm) {
-    vm->bind(vm->builtins, "clear(color: int)", reinterpret_cast<pkpy::NativeFuncC>(Clear));
-    vm->bind(vm->builtins, "pixel(x: int, y: int, color: int)", reinterpret_cast<pkpy::NativeFuncC>(Pixel));
-    vm->bind(vm->builtins, "circle(x: int, y: int, radius: float, color: int)", reinterpret_cast<pkpy::NativeFuncC>(Circle));
+//    vm->bind(vm->builtins, "clear(color: int)", reinterpret_cast<pkpy::NativeFuncC>(Clear));
+//    vm->bind(vm->builtins, "pixel(x: int, y: int, color: int)", reinterpret_cast<pkpy::NativeFuncC>(Pixel));
+//    vm->bind(vm->builtins, "circle(x: int, y: int, radius: float, color: int)", reinterpret_cast<pkpy::NativeFuncC>(Circle));
+
+    vm->bind(vm->builtins, "clear(color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){{
+        int index = pkpy::py_cast<int>(vm, args[0]);
+        Clear(index);
+        return vm->None;
+    }});
+
+    vm->bind(vm->builtins, "pixel(x: int, y: int, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){{
+        float x = pkpy::py_cast<float>(vm, args[0]);
+        float y = pkpy::py_cast<float>(vm, args[1]);
+        float paletteIndex = pkpy::py_cast<float>(vm, args[2]);
+        this->Pixel(x, y, paletteIndex);
+        return vm->None;
+    }});
+
+    vm->bind(vm->builtins, "circle(x: int, y: int, radius: float, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){{
+        float x = pkpy::py_cast<float>(vm, args[0]);
+        float y = pkpy::py_cast<float>(vm, args[1]);
+        float radius = pkpy::py_cast<float>(vm, args[2]);
+        float paletteIndex = pkpy::py_cast<float>(vm, args[3]);
+        this->Circle(x, y, radius, paletteIndex);
+        return vm->None;
+    }});
+
+    vm->bind(vm->builtins, "text(t: string, x: int, y: int, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){{
+        std::string s = pkpy::py_cast<pkpy::Str&>(vm, args[0]).str();
+        float x = pkpy::py_cast<float>(vm, args[1]);
+        float y = pkpy::py_cast<float>(vm, args[2]);
+        float paletteIndex = pkpy::py_cast<float>(vm, args[3]);
+        this->Text(s, x, y, paletteIndex);
+        return vm->None;
+    }});
 }
 
-void Graphics::Clear(pkpy::VM* vm, pkpy::ArgsView args) {
-    int paletteIndex = pkpy::py_cast<int>(vm, args[0]);
+void Graphics::Clear(int paletteIndex) {
     if(paletteIndex < 0 || paletteIndex >= palette.size()) paletteIndex = 0;
     ClearBackground(palette[paletteIndex]);
 }
 
-void Graphics::Pixel(pkpy::VM* vm, pkpy::ArgsView args) {
-    int x = pkpy::py_cast<int>(vm, args[0]);
-    int y = pkpy::py_cast<int>(vm, args[1]);
-    int paletteIndex = pkpy::py_cast<int>(vm, args[2]);
+void Graphics::Pixel(int x, int y, int paletteIndex) {
     DrawPixel(x, y, palette[paletteIndex]);
 }
 
-void Graphics::Circle(pkpy::VM* vm, pkpy::ArgsView args) {
-    float x = pkpy::py_cast<float>(vm, args[0]);
-    float y = pkpy::py_cast<float>(vm, args[1]);
-    float radius = pkpy::py_cast<float>(vm, args[2]);
-    int paletteIndex = pkpy::py_cast<int>(vm, args[3]);
+void Graphics::Circle(int x, int y, int radius, int paletteIndex) {
     DrawCircle(x, y, radius, palette[paletteIndex]);
+}
+
+void Graphics::Text(std::string s, int x, int y, int paletteIndex) {
+    DrawText(s.c_str(), x, y, 5, palette[paletteIndex]);
 }
 
 void Graphics::searchForDrawFunc(pkpy::VM* vm) {

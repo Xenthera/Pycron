@@ -22,6 +22,6 @@ public:
     static pkpy::PyObject* getRandomNumber(pkpy::VM* vm, pkpy::ArgsView args);
     static pkpy::PyObject* getSin(pkpy::VM* vm, pkpy::ArgsView args);
     static pkpy::PyObject* getCos(pkpy::VM* vm, pkpy::ArgsView args);
-
+    static pkpy::PyObject* getFPS(pkpy::VM* vm, pkpy::ArgsView args);
 };
 
