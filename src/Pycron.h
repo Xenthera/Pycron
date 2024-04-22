@@ -17,6 +17,11 @@ public:
     ~Pycron();
 
     void StartGameLoop();
+    void bindMethods(pkpy::VM* vm);
+
+    static pkpy::PyObject* getRandomNumber(pkpy::VM* vm, pkpy::ArgsView args);
+    static pkpy::PyObject* getSin(pkpy::VM* vm, pkpy::ArgsView args);
+    static pkpy::PyObject* getCos(pkpy::VM* vm, pkpy::ArgsView args);
 
 };
 

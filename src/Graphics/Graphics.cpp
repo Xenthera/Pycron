@@ -6,6 +6,9 @@
 #include "Graphics.h"
 #include "../Utilities.h"
 
+std::vector<Color> Graphics::palette;
+
+
 Graphics::Graphics(int screenWidth, int screenHeight, int startupScale) : screenWidth(screenWidth), screenHeight(screenHeight){
     startupScreenWidth = screenWidth * startupScale;
     startupScreenHeight = screenHeight * startupScale;
@@ -16,11 +19,19 @@ Graphics::Graphics(int screenWidth, int screenHeight, int startupScale) : screen
     InitWindow(startupScreenWidth, startupScreenHeight, "test");
     SetTargetFPS(60);
     virtualScreen = LoadRenderTexture(screenWidth, screenHeight);
+
     virtualScreenLocalBounds = {0.0f, 0.0f, (float)virtualScreen.texture.width, -(float)virtualScreen.texture.height };
+    updateFunction = nullptr;
     calculateScreenPositionInWindow();
+
+    std::cout << origin.x << " : " << origin.y << std::endl;
+    std::cout << virtualScreenLocalBounds.width << " : " << virtualScreenLocalBounds.height << std::endl;
+    std::cout << virtualScreenWindowBounds.width << " : " << virtualScreenWindowBounds.height << std::endl;
+
+
 }
 
-void Graphics::draw() {
+void Graphics::draw(pkpy::VM* vm) {
 
     windowShouldClose = WindowShouldClose();
 
@@ -32,18 +43,12 @@ void Graphics::draw() {
 
     BeginTextureMode(virtualScreen);
     //////////
-        ClearBackground(palette[1]);
-        DrawText(("Hello World " + std::to_string(GetFPS()) + " FPS").c_str(), 5, 5, 5, RAYWHITE);
-
-        DrawRectangle(3, 19, 33, 33, BLACK);
-
-        for (int i = 0; i < 8; ++i) {
-            for (int j = 0; j < 8; ++j) {
-                DrawRectangle(4 + i * 4, 20 + j * 4, 3, 3, palette[i + j * 8]);
-            }
+        try{
+            if(updateFunction != nullptr)
+                vm->call(updateFunction);
+        } catch(pkpy::Exception e){
+            std::cout << e.summary() << std::endl;
         }
-
-        DrawCircleLines(mouseX(), mouseY(),3, palette[18]);
     //////////
     EndTextureMode();
 
@@ -52,7 +57,7 @@ void Graphics::draw() {
 
 void Graphics::renderVirtualScreen() {
     BeginDrawing();
-        ClearBackground(palette[0]);
+        //ClearBackground(palette[16]);
         DrawTexturePro(virtualScreen.texture, virtualScreenLocalBounds, virtualScreenWindowBounds, origin, 0.0f, WHITE);
     EndDrawing();
 }
@@ -112,6 +117,48 @@ void Graphics::toggleFullScreen() {
         ToggleFullscreen();
     }
     calculateScreenPositionInWindow();
+}
+
+void Graphics::bindMethods(pkpy::VM *vm) {
+    vm->bind(vm->builtins, "clear(color: int)", reinterpret_cast<pkpy::NativeFuncC>(Clear));
+    vm->bind(vm->builtins, "pixel(x: int, y: int, color: int)", reinterpret_cast<pkpy::NativeFuncC>(Pixel));
+    vm->bind(vm->builtins, "circle(x: int, y: int, radius: float, color: int)", reinterpret_cast<pkpy::NativeFuncC>(Circle));
+}
+
+void Graphics::Clear(pkpy::VM* vm, pkpy::ArgsView args) {
+    int paletteIndex = pkpy::py_cast<int>(vm, args[0]);
+    if(paletteIndex < 0 || paletteIndex >= palette.size()) paletteIndex = 0;
+    ClearBackground(palette[paletteIndex]);
+}
+
+void Graphics::Pixel(pkpy::VM* vm, pkpy::ArgsView args) {
+    int x = pkpy::py_cast<int>(vm, args[0]);
+    int y = pkpy::py_cast<int>(vm, args[1]);
+    int paletteIndex = pkpy::py_cast<int>(vm, args[2]);
+    DrawPixel(x, y, palette[paletteIndex]);
+}
+
+void Graphics::Circle(pkpy::VM* vm, pkpy::ArgsView args) {
+    float x = pkpy::py_cast<float>(vm, args[0]);
+    float y = pkpy::py_cast<float>(vm, args[1]);
+    float radius = pkpy::py_cast<float>(vm, args[2]);
+    int paletteIndex = pkpy::py_cast<int>(vm, args[3]);
+    DrawCircle(x, y, radius, palette[paletteIndex]);
+}
+
+void Graphics::searchForDrawFunc(pkpy::VM* vm) {
+    updateFunction = vm->eval("update");
+    if(updateFunction == nullptr){
+        std::cout << "Can't find update function" << std::endl;
+    }
+}
+
+void Graphics::beginDraw() {
+    BeginTextureMode(virtualScreen);
+}
+
+void Graphics::endDraw() {
+    EndTextureMode();
 }
 
 

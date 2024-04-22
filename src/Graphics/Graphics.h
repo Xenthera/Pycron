@@ -1,5 +1,6 @@
 #pragma once
 #include "raylib.h"
+#include "pocketpy/vm.h"
 #include <algorithm>
 #include <vector>
 
@@ -18,7 +19,6 @@ private:
     Rectangle virtualScreenLocalBounds; // virtual screen bounds
     RenderTexture2D virtualScreen; // actual pixel screen
 
-    std::vector<Color> palette;
 
 private:
     void renderVirtualScreen();
@@ -31,15 +31,32 @@ public:
 
     bool windowShouldClose;
 
+    static std::vector<Color> palette;
+
+    pkpy::PyObject* updateFunction;
+
+
 public:
     Graphics(int screenWidth, int screenHeight, int startupScale);
 
-    void draw();
+    void draw(pkpy::VM* vm);
+
+    void beginDraw();
+    void endDraw();
 
     void loadPalette(std::string path);
     int mouseX();
     int mouseY();
     void toggleFullScreen();
+
+    void bindMethods(pkpy::VM* vm);
+
+    void searchForDrawFunc(pkpy::VM* vm);
+
+
+    static void Clear(pkpy::VM* vm, pkpy::ArgsView args);
+    static void Pixel(pkpy::VM* vm, pkpy::ArgsView args);
+    static void Circle(pkpy::VM* vm, pkpy::ArgsView args);
 
 
 };
