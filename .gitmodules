@@ -1,3 +1,0 @@
-[submodule "dependencies/pocketpy"]
-	path = dependencies/pocketpy
-	url = https://github.com/pocketpy/pocketpy.git
