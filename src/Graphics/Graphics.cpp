@@ -21,14 +21,9 @@ Graphics::Graphics(int screenWidth, int screenHeight, int startupScale) : screen
     virtualScreen = LoadRenderTexture(screenWidth, screenHeight);
 
     virtualScreenLocalBounds = {0.0f, 0.0f, (float)virtualScreen.texture.width, -(float)virtualScreen.texture.height };
+    virtualScreenWindowBounds = {0.0f, 0.0f, (float)windowWidth, (float)windowHeight};
     updateFunction = nullptr;
     calculateScreenPositionInWindow();
-
-    std::cout << origin.x << " : " << origin.y << std::endl;
-    std::cout << virtualScreenLocalBounds.width << " : " << virtualScreenLocalBounds.height << std::endl;
-    std::cout << virtualScreenWindowBounds.width << " : " << virtualScreenWindowBounds.height << std::endl;
-
-
 }
 
 void Graphics::draw(pkpy::VM* vm) {
