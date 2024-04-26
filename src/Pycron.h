@@ -8,16 +8,21 @@ class Graphics;
 class StateManager;
 
 class Pycron {
+public:
+    static std::string PythonDirectory;
 
 private:
     const int virtualScreenWidth = 360;
     const int virtualScreenHeight = 203;
     const int initialScale = 3;
-    Graphics* m_graphics;
     StateManager* m_stateManager;
-    pkpy::VM* m_vm;
 
 public:
+
+    pkpy::VM* m_vm;
+    Graphics* m_graphics;
+
+
     Pycron();
     ~Pycron();
 

@@ -22,14 +22,10 @@ Graphics::Graphics(int screenWidth, int screenHeight, int startupScale) : m_scre
 
     m_virtualScreenLocalBounds = {0.0f, 0.0f, (float)m_virtualScreen.texture.width, -(float)m_virtualScreen.texture.height };
     m_virtualScreenWindowBounds = {0.0f, 0.0f, (float)m_windowWidth, (float)m_windowHeight};
-    updateFunction = nullptr;
     calculateScreenPositionInWindow();
 }
 
 void Graphics::draw(StateManager* stateManager) {
-
-//    vm->builtins->attr().set("mouseX", pkpy::py_var(vm, mouseX()));
-//    vm->builtins->attr().set("mouseY", pkpy::py_var(vm, mouseY()));
 
     m_windowShouldClose = WindowShouldClose();
 
@@ -179,19 +175,17 @@ void Graphics::Text(std::string s, int x, int y, int paletteIndex) {
     DrawText(s.c_str(), x, y, 5, Palette[paletteIndex]);
 }
 
-void Graphics::searchForDrawFunc(pkpy::VM* vm) {
-    updateFunction = vm->eval("update");
-    if(updateFunction == nullptr){
-        std::cout << "Can't find update function" << std::endl;
-    }
-}
-
 void Graphics::beginDraw() {
     BeginTextureMode(m_virtualScreen);
 }
 
 void Graphics::endDraw() {
     EndTextureMode();
+}
+
+void Graphics::updateVMMouse(pkpy::VM* vm) {
+    vm->builtins->attr().set("mouseX", pkpy::py_var(vm, mouseX()));
+    vm->builtins->attr().set("mouseY", pkpy::py_var(vm, mouseY()));
 }
 
 

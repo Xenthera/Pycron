@@ -21,7 +21,6 @@ private:
     Vector2 m_origin; // position of rect texture on window
     Rectangle m_virtualScreenLocalBounds; // virtual screen bounds
     RenderTexture2D m_virtualScreen; // actual pixel screen
-    pkpy::PyObject* updateFunction;
 
 
 private:
@@ -47,15 +46,14 @@ public:
     void beginDraw();
     void endDraw();
 
+    void updateVMMouse(pkpy::VM* vm);
+
     void loadPalette(std::string path);
     int mouseX();
     int mouseY();
     void toggleFullScreen();
 
     void bindMethods(pkpy::VM* vm);
-
-    void searchForDrawFunc(pkpy::VM* vm);
-
 
     void Clear(int paletteIndex);
     void Pixel(int x, int y, int paletteIndex);

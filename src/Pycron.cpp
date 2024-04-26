@@ -9,6 +9,7 @@
 #include "Utilities.h"
 #include "Graphics/Graphics.h"
 
+std::string Pycron::PythonDirectory = "./python";
 
 std::string loadFileToString(const std::string& filename) {
     std::ifstream file(filename); // Open the file
@@ -24,29 +25,18 @@ std::string loadFileToString(const std::string& filename) {
 
 Pycron::Pycron() {
     SetTraceLogLevel(LOG_ERROR);
-
-    m_graphics = new Graphics{virtualScreenWidth, virtualScreenHeight, initialScale};
-    m_graphics->loadPalette("../resources/palette2.hex");
-
-    m_stateManager = new StateManager(this);
-
     m_vm = new pkpy::VM();
     bindMethods();
 
+    m_graphics = new Graphics{virtualScreenWidth, virtualScreenHeight, initialScale};
+    m_graphics->loadPalette("../resources/palette2.hex");
     m_graphics->bindMethods(m_vm);
+    m_graphics->updateVMMouse(m_vm);
+    m_stateManager = new StateManager(this);
+
+
 
     std::string python = loadFileToString("../python/main.py");
-
-    m_graphics->beginDraw();
-    m_graphics->Clear(0);
-    try {
-        pkpy::CodeObject_ code = m_vm->compile(python, "main.py", pkpy::EXEC_MODE, false);
-        m_vm->_exec(code, m_vm->_main);
-        m_graphics->searchForDrawFunc(m_vm);
-    }catch (pkpy::Exception e) {
-        std::cout << e.summary() << std::endl;
-    }
-    m_graphics->endDraw();
 
 }
 
@@ -64,6 +54,7 @@ void Pycron::StartGameLoop() {
         if (IsKeyPressed(KEY_F)) {
             m_graphics->toggleFullScreen();
         }
+        m_graphics->updateVMMouse(m_vm);
         m_graphics->draw(this->m_stateManager);
     }
 }
