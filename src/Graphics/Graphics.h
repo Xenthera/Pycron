@@ -1,8 +1,11 @@
 #pragma once
 #include "raylib.h"
 #include "pocketpy/vm.h"
+#include "../StateManager.h"
 #include <algorithm>
 #include <vector>
+
+class StateManager;
 
 class Graphics {
 
@@ -39,7 +42,7 @@ public:
 public:
     Graphics(int screenWidth, int screenHeight, int startupScale);
 
-    void draw(pkpy::VM* vm);
+    void draw(StateManager* stateManager);
 
     void beginDraw();
     void endDraw();

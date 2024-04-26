@@ -26,10 +26,10 @@ Graphics::Graphics(int screenWidth, int screenHeight, int startupScale) : screen
     calculateScreenPositionInWindow();
 }
 
-void Graphics::draw(pkpy::VM* vm) {
+void Graphics::draw(StateManager* stateManager) {
 
-    vm->builtins->attr().set("mouseX", pkpy::py_var(vm, mouseX()));
-    vm->builtins->attr().set("mouseY", pkpy::py_var(vm, mouseY()));
+//    vm->builtins->attr().set("mouseX", pkpy::py_var(vm, mouseX()));
+//    vm->builtins->attr().set("mouseY", pkpy::py_var(vm, mouseY()));
 
     windowShouldClose = WindowShouldClose();
 
@@ -40,17 +40,20 @@ void Graphics::draw(pkpy::VM* vm) {
     }
 
     BeginTextureMode(virtualScreen);
-    //////////
-        try{
-            if(updateFunction != nullptr)
-                vm->call(updateFunction);
-        } catch(pkpy::Exception e){
-            std::cout << e.summary() << std::endl;
-        }
+//    //////////
+//        try{
+//            if(updateFunction != nullptr)
+//                vm->call(updateFunction);
+//        } catch(pkpy::Exception e){
+//            std::cout << e.summary() << std::endl;
+//        }
+//
+//        Circle(150,100,50,1);
+//        Text("Hello from C++", 120, 95, 9);
+//    //////////
 
-        Circle(150,100,50,1);
-        Text("Hello from C++", 120, 95, 9);
-    //////////
+    stateManager->Draw(this);
+
     EndTextureMode();
 
     renderVirtualScreen();

@@ -28,6 +28,8 @@ Pycron::Pycron() {
     graphics = new Graphics{virtualScreenWidth, virtualScreenHeight, initialScale};
     graphics->loadPalette("../resources/palette2.hex");
 
+    stateManager = new StateManager(this);
+
     vm = new pkpy::VM();
     bindMethods(vm);
 
@@ -61,7 +63,7 @@ void Pycron::StartGameLoop() {
         if (IsKeyPressed(KEY_F)) {
             graphics->toggleFullScreen();
         }
-        graphics->draw(vm);
+        graphics->draw(this->stateManager);
     }
 }
 

@@ -1,7 +1,11 @@
 #pragma once
 #include <algorithm>
 #include "pocketpy.h"
+#include "StateManager.h"
 #include "Graphics/Graphics.h"
+
+class Graphics;
+class StateManager;
 
 class Pycron {
 
@@ -10,6 +14,7 @@ private:
     const int virtualScreenHeight = 203;
     const int initialScale = 3;
     Graphics* graphics;
+    StateManager* stateManager;
     pkpy::VM* vm;
 
 public:
