@@ -20,9 +20,12 @@ void StateManager::RequestStateChange(StateManager::StateType state) {
 
     if(m_currentState){
         // Game state needs ability to draw during code loading
-        if(state == GAME){
+        if(m_currentState == m_gameState){
             m_pycron->m_graphics->beginDraw();
             m_currentState->OnEnter();
+            if(m_gameState->m_errorThrown){
+                m_pycron->m_graphics->Text(m_gameState->m_previousError, 2, 2, 59);
+            }
             m_pycron->m_graphics->endDraw();
         }else{
             m_currentState->OnEnter();
@@ -32,7 +35,17 @@ void StateManager::RequestStateChange(StateManager::StateType state) {
 
 void StateManager::Draw(Graphics *graphics) {
     if(m_currentState){
-        m_currentState->Draw(graphics);
+        if(m_currentState == m_gameState){
+            if(m_gameState->m_errorThrown){
+                m_pycron->m_graphics->Text(m_gameState->m_previousError, 2, 2, 59);
+            }
+            else{
+                m_currentState->Draw(graphics);
+            }
+        }
+        else{
+            m_currentState->Draw(graphics);
+        }
     }
 }
 

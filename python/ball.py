@@ -1,4 +1,4 @@
-class ball:
+class Ball:
     def __init__(self):
         self.x = rnd(10, 100)
         self.y = rnd(10, 100)
@@ -32,5 +32,3 @@ class ball:
 
 
         circle(self.x, self.y, 3, self.color)
-
-

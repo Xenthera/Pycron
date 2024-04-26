@@ -229,7 +229,7 @@ public:
     PyObject* call_method(PyObject* self, PyObject* callable, Args&&... args){
         PUSH(callable);
         PUSH(self);
-        _push_varargs(args...);
+        _push_varargs(static_cast<PyObject *>(args)...);
         return vectorcall(sizeof...(args));
     }
 

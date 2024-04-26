@@ -46,7 +46,7 @@ public:
     void beginDraw();
     void endDraw();
 
-    void updateVMMouse(pkpy::VM* vm);
+    void updateVMVars(pkpy::VM* vm);
 
     void loadPalette(std::string path);
     int mouseX();

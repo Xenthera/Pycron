@@ -42,8 +42,8 @@ void GameState::PreProcessScripts() {
     loadPythonModules(pythonSources);
     std::string main = pythonSources[MAIN_FILE];
 
-    pkpy::CodeObject_ code = m_vm->compile(main, MAIN_FILE, pkpy::EXEC_MODE, false);
     try{
+        pkpy::CodeObject_ code = m_vm->compile(main, MAIN_FILE, pkpy::EXEC_MODE, false);
         m_vm->_exec(code, m_vm->_main);
         m_updateFunction = m_vm->eval("update");
 //        if(m_updateFunction == nullptr){

@@ -31,7 +31,7 @@ Pycron::Pycron() {
     m_graphics = new Graphics{virtualScreenWidth, virtualScreenHeight, initialScale};
     m_graphics->loadPalette("../resources/palette2.hex");
     m_graphics->bindMethods(m_vm);
-    m_graphics->updateVMMouse(m_vm);
+    m_graphics->updateVMVars(m_vm);
     m_stateManager = new StateManager(this);
 
 
@@ -54,7 +54,7 @@ void Pycron::StartGameLoop() {
         if (IsKeyPressed(KEY_F)) {
             m_graphics->toggleFullScreen();
         }
-        m_graphics->updateVMMouse(m_vm);
+        m_graphics->updateVMVars(m_vm);
         m_graphics->draw(this->m_stateManager);
     }
 }

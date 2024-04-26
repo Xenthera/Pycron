@@ -148,14 +148,17 @@ void Graphics::bindMethods(pkpy::VM *vm) {
         return vm->None;
     }});
 
-    vm->bind(vm->builtins, "text(t: string, x: int, y: int, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){{
-        std::string s = pkpy::py_cast<pkpy::Str&>(vm, args[0]).str();
+    vm->bind(vm->builtins, "text(t: string, x: int, y: int, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){
+        pkpy::PyObject* func_str = vm->builtins->attr("str");
+        pkpy::PyObject* result = vm->call(func_str,  args[0]);
+        std::string s = pkpy::py_cast<pkpy::Str&>(vm, result).str();
+
         float x = pkpy::py_cast<float>(vm, args[1]);
         float y = pkpy::py_cast<float>(vm, args[2]);
         float paletteIndex = pkpy::py_cast<float>(vm, args[3]);
         this->Text(s, x, y, paletteIndex);
         return vm->None;
-    }});
+    });
 }
 
 void Graphics::Clear(int paletteIndex) {
@@ -183,9 +186,11 @@ void Graphics::endDraw() {
     EndTextureMode();
 }
 
-void Graphics::updateVMMouse(pkpy::VM* vm) {
+void Graphics::updateVMVars(pkpy::VM* vm) {
     vm->builtins->attr().set("mouseX", pkpy::py_var(vm, mouseX()));
     vm->builtins->attr().set("mouseY", pkpy::py_var(vm, mouseY()));
+    vm->builtins->attr().set("width", pkpy::py_var(vm, m_screenWidth));
+    vm->builtins->attr().set("height", pkpy::py_var(vm, m_screenHeight));
 }
 
 
