@@ -1,5 +1,5 @@
 #pragma once
-#include "State.h"
+#include "../State.h"
 class GameState : public State  {
 
 public:

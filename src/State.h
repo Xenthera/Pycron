@@ -8,9 +8,9 @@ class StateManager;
 
 class State {
 private:
-    StateManager* stateManager;
+    StateManager* m_stateManager;
 protected:
-    explicit State(StateManager* stateManager) : stateManager(stateManager){}
+    explicit State(StateManager* stateManager) : m_stateManager(stateManager){}
 public:
     virtual ~State() = default;
     virtual void Draw(Graphics* graphics) = 0;

@@ -3,7 +3,7 @@
 #include "State.h"
 #include "Pycron.h"
 #include "Graphics/Graphics.h"
-#include "GameState.h"
+#include "States/GameState.h"
 
 class Pycron;
 class State;
@@ -20,12 +20,11 @@ private:
 
     State* m_currentState;
     Pycron* m_pycron;
-
-    GameState* gameState;
-
+    GameState* m_gameState;
 
 public:
     explicit StateManager(Pycron* pycron);
+    ~StateManager();
 
     void RequestStateChange(StateType state);
 

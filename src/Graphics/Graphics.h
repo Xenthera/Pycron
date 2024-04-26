@@ -11,16 +11,17 @@ class Graphics {
 
 private:
     // initial spawn size, used to exit full screen as well
-    int startupScreenWidth;
-    int startupScreenHeight;
+    int m_startupScreenWidth;
+    int m_startupScreenHeight;
     // current size
-    int windowWidth;
-    int windowHeight;
+    int m_windowWidth;
+    int m_windowHeight;
 
-    Rectangle virtualScreenWindowBounds; // size of rect texture on window
-    Vector2 origin; // position of rect texture on window
-    Rectangle virtualScreenLocalBounds; // virtual screen bounds
-    RenderTexture2D virtualScreen; // actual pixel screen
+    Rectangle m_virtualScreenWindowBounds; // size of rect texture on window
+    Vector2 m_origin; // position of rect texture on window
+    Rectangle m_virtualScreenLocalBounds; // virtual screen bounds
+    RenderTexture2D m_virtualScreen; // actual pixel screen
+    pkpy::PyObject* updateFunction;
 
 
 private:
@@ -29,14 +30,13 @@ private:
 
 public:
     // virtual screen
-    int screenWidth;
-    int screenHeight;
+    int m_screenWidth;
+    int m_screenHeight;
 
-    bool windowShouldClose;
+    bool m_windowShouldClose;
 
-    static std::vector<Color> palette;
+    static std::vector<Color> Palette;
 
-    pkpy::PyObject* updateFunction;
 
 
 public:

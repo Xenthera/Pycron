@@ -5,9 +5,8 @@
 #include "StateManager.h"
 
 StateManager::StateManager(Pycron *pycron) : m_pycron(pycron){
-    gameState = new GameState(this);
-    m_currentState = gameState;
-
+    m_gameState = new GameState(this);
+    RequestStateChange(GAME);
 }
 
 void StateManager::RequestStateChange(StateManager::StateType state) {
@@ -16,7 +15,7 @@ void StateManager::RequestStateChange(StateManager::StateType state) {
     }
 
     if(state == StateType::GAME){
-        m_currentState = gameState;
+        m_currentState = m_gameState;
     }
 
     if(m_currentState){
@@ -29,4 +28,9 @@ void StateManager::Draw(Graphics *graphics) {
     if(m_currentState){
         m_currentState->Draw(graphics);
     }
+}
+
+StateManager::~StateManager() {
+    m_currentState = nullptr;
+    delete m_gameState;
 }

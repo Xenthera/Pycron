@@ -13,16 +13,16 @@ private:
     const int virtualScreenWidth = 360;
     const int virtualScreenHeight = 203;
     const int initialScale = 3;
-    Graphics* graphics;
-    StateManager* stateManager;
-    pkpy::VM* vm;
+    Graphics* m_graphics;
+    StateManager* m_stateManager;
+    pkpy::VM* m_vm;
 
 public:
     Pycron();
     ~Pycron();
 
     void StartGameLoop();
-    void bindMethods(pkpy::VM* vm);
+    void bindMethods();
 
     static pkpy::PyObject* getRandomNumber(pkpy::VM* vm, pkpy::ArgsView args);
     static pkpy::PyObject* getSin(pkpy::VM* vm, pkpy::ArgsView args);

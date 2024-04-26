@@ -6,22 +6,22 @@
 #include "Graphics.h"
 #include "../Utilities.h"
 
-std::vector<Color> Graphics::palette;
+std::vector<Color> Graphics::Palette;
 
 
-Graphics::Graphics(int screenWidth, int screenHeight, int startupScale) : screenWidth(screenWidth), screenHeight(screenHeight){
-    startupScreenWidth = screenWidth * startupScale;
-    startupScreenHeight = screenHeight * startupScale;
-    windowWidth = startupScreenWidth;
-    windowHeight = startupScreenHeight;
+Graphics::Graphics(int screenWidth, int screenHeight, int startupScale) : m_screenWidth(screenWidth), m_screenHeight(screenHeight){
+    m_startupScreenWidth = screenWidth * startupScale;
+    m_startupScreenHeight = screenHeight * startupScale;
+    m_windowWidth = m_startupScreenWidth;
+    m_windowHeight = m_startupScreenHeight;
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-    InitWindow(startupScreenWidth, startupScreenHeight, "test");
+    InitWindow(m_startupScreenWidth, m_startupScreenHeight, "test");
     SetTargetFPS(60);
-    virtualScreen = LoadRenderTexture(screenWidth, screenHeight);
+    m_virtualScreen = LoadRenderTexture(screenWidth, screenHeight);
 
-    virtualScreenLocalBounds = {0.0f, 0.0f, (float)virtualScreen.texture.width, -(float)virtualScreen.texture.height };
-    virtualScreenWindowBounds = {0.0f, 0.0f, (float)windowWidth, (float)windowHeight};
+    m_virtualScreenLocalBounds = {0.0f, 0.0f, (float)m_virtualScreen.texture.width, -(float)m_virtualScreen.texture.height };
+    m_virtualScreenWindowBounds = {0.0f, 0.0f, (float)m_windowWidth, (float)m_windowHeight};
     updateFunction = nullptr;
     calculateScreenPositionInWindow();
 }
@@ -31,15 +31,15 @@ void Graphics::draw(StateManager* stateManager) {
 //    vm->builtins->attr().set("mouseX", pkpy::py_var(vm, mouseX()));
 //    vm->builtins->attr().set("mouseY", pkpy::py_var(vm, mouseY()));
 
-    windowShouldClose = WindowShouldClose();
+    m_windowShouldClose = WindowShouldClose();
 
     if (IsWindowResized()) {
-        windowWidth = GetScreenWidth();
-        windowHeight = GetScreenHeight();
+        m_windowWidth = GetScreenWidth();
+        m_windowHeight = GetScreenHeight();
         calculateScreenPositionInWindow();
     }
 
-    BeginTextureMode(virtualScreen);
+    BeginTextureMode(m_virtualScreen);
 //    //////////
 //        try{
 //            if(updateFunction != nullptr)
@@ -61,8 +61,8 @@ void Graphics::draw(StateManager* stateManager) {
 
 void Graphics::renderVirtualScreen() {
     BeginDrawing();
-        //ClearBackground(palette[16]);
-        DrawTexturePro(virtualScreen.texture, virtualScreenLocalBounds, virtualScreenWindowBounds, origin, 0.0f, WHITE);
+        ClearBackground(BLACK);
+        DrawTexturePro(m_virtualScreen.texture, m_virtualScreenLocalBounds, m_virtualScreenWindowBounds, m_origin, 0.0f, WHITE);
     EndDrawing();
 }
 
@@ -72,52 +72,52 @@ void Graphics::loadPalette(std::string path) {
 
     if(paletteFile.is_open()){
         while(getline(paletteFile, line)){
-            palette.push_back(Utilities::ColorFromHex(stoi(line, nullptr, 16)));
+            Palette.push_back(Utilities::ColorFromHex(stoi(line, nullptr, 16)));
         }
         paletteFile.close();
     }
 }
 
 void Graphics::calculateScreenPositionInWindow() {
-    float virtualAspectRatio = (float)screenWidth / (float)screenHeight;
-    float windowAspectRatio = (float)windowWidth / (float)windowHeight;
+    float virtualAspectRatio = (float)m_screenWidth / (float)m_screenHeight;
+    float windowAspectRatio = (float)m_windowWidth / (float)m_windowHeight;
 
     if(windowAspectRatio > virtualAspectRatio) {
-        virtualScreenWindowBounds.height = (float)windowHeight;
-        virtualScreenWindowBounds.width = virtualScreenWindowBounds.height * virtualAspectRatio;
-        origin.x = -(windowWidth / 2.0f - (virtualScreenWindowBounds.width / 2.0f));
-        origin.y = 0;
+        m_virtualScreenWindowBounds.height = (float)m_windowHeight;
+        m_virtualScreenWindowBounds.width = m_virtualScreenWindowBounds.height * virtualAspectRatio;
+        m_origin.x = -(m_windowWidth / 2.0f - (m_virtualScreenWindowBounds.width / 2.0f));
+        m_origin.y = 0;
     }else {
-        virtualScreenWindowBounds.width = (float)windowWidth;
-        virtualScreenWindowBounds.height = virtualScreenWindowBounds.width / virtualAspectRatio;
-        origin.x = 0;
-        origin.y = -(windowHeight / 2.0f - (virtualScreenWindowBounds.height / 2.0f));
+        m_virtualScreenWindowBounds.width = (float)m_windowWidth;
+        m_virtualScreenWindowBounds.height = m_virtualScreenWindowBounds.width / virtualAspectRatio;
+        m_origin.x = 0;
+        m_origin.y = -(m_windowHeight / 2.0f - (m_virtualScreenWindowBounds.height / 2.0f));
     }
 }
 
 int Graphics::mouseX() {
     float x = GetMouseX();
-    float adjX = x + origin.x;
-    return (int)(adjX / virtualScreenWindowBounds.width * screenWidth);
+    float adjX = x + m_origin.x;
+    return (int)(adjX / m_virtualScreenWindowBounds.width * m_screenWidth);
 }
 
 int Graphics::mouseY() {
     float y = GetMouseY();
-    float adjY = y + origin.y;
-    return (int)(adjY / virtualScreenWindowBounds.height * screenHeight);
+    float adjY = y + m_origin.y;
+    return (int)(adjY / m_virtualScreenWindowBounds.height * m_screenHeight);
 }
 
 void Graphics::toggleFullScreen() {
     if (IsWindowFullscreen()) {
         ToggleFullscreen();
-        SetWindowSize(startupScreenWidth, startupScreenHeight);
-        windowWidth = startupScreenWidth;
-        windowHeight = startupScreenHeight;
+        SetWindowSize(m_startupScreenWidth, m_startupScreenHeight);
+        m_windowWidth = m_startupScreenWidth;
+        m_windowHeight = m_startupScreenHeight;
     } else {
         int monitor = GetCurrentMonitor();
-        windowWidth = GetMonitorWidth(monitor);
-        windowHeight = GetMonitorHeight(monitor);
-        SetWindowSize(windowWidth, windowHeight);
+        m_windowWidth = GetMonitorWidth(monitor);
+        m_windowHeight = GetMonitorHeight(monitor);
+        SetWindowSize(m_windowWidth, m_windowHeight);
         ToggleFullscreen();
 
     }
@@ -163,20 +163,20 @@ void Graphics::bindMethods(pkpy::VM *vm) {
 }
 
 void Graphics::Clear(int paletteIndex) {
-    if(paletteIndex < 0 || paletteIndex >= palette.size()) paletteIndex = 0;
-    ClearBackground(palette[paletteIndex]);
+    if(paletteIndex < 0 || paletteIndex >= Palette.size()) paletteIndex = 0;
+    ClearBackground(Palette[paletteIndex]);
 }
 
 void Graphics::Pixel(int x, int y, int paletteIndex) {
-    DrawPixel(x, y, palette[paletteIndex]);
+    DrawPixel(x, y, Palette[paletteIndex]);
 }
 
 void Graphics::Circle(int x, int y, int radius, int paletteIndex) {
-    DrawCircle(x, y, radius, palette[paletteIndex]);
+    DrawCircle(x, y, radius, Palette[paletteIndex]);
 }
 
 void Graphics::Text(std::string s, int x, int y, int paletteIndex) {
-    DrawText(s.c_str(), x, y, 5, palette[paletteIndex]);
+    DrawText(s.c_str(), x, y, 5, Palette[paletteIndex]);
 }
 
 void Graphics::searchForDrawFunc(pkpy::VM* vm) {
@@ -187,7 +187,7 @@ void Graphics::searchForDrawFunc(pkpy::VM* vm) {
 }
 
 void Graphics::beginDraw() {
-    BeginTextureMode(virtualScreen);
+    BeginTextureMode(m_virtualScreen);
 }
 
 void Graphics::endDraw() {

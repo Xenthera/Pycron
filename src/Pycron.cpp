@@ -25,53 +25,54 @@ std::string loadFileToString(const std::string& filename) {
 Pycron::Pycron() {
     SetTraceLogLevel(LOG_ERROR);
 
-    graphics = new Graphics{virtualScreenWidth, virtualScreenHeight, initialScale};
-    graphics->loadPalette("../resources/palette2.hex");
+    m_graphics = new Graphics{virtualScreenWidth, virtualScreenHeight, initialScale};
+    m_graphics->loadPalette("../resources/palette2.hex");
 
-    stateManager = new StateManager(this);
+    m_stateManager = new StateManager(this);
 
-    vm = new pkpy::VM();
-    bindMethods(vm);
+    m_vm = new pkpy::VM();
+    bindMethods();
 
-    graphics->bindMethods(vm);
+    m_graphics->bindMethods(m_vm);
 
     std::string python = loadFileToString("../python/main.py");
 
-    graphics->beginDraw();
-    graphics->Clear(0);
+    m_graphics->beginDraw();
+    m_graphics->Clear(0);
     try {
-        pkpy::CodeObject_ code = vm->compile(python, "main.py", pkpy::EXEC_MODE, false);
-        vm->_exec(code, vm->_main);
-        graphics->searchForDrawFunc(vm);
+        pkpy::CodeObject_ code = m_vm->compile(python, "main.py", pkpy::EXEC_MODE, false);
+        m_vm->_exec(code, m_vm->_main);
+        m_graphics->searchForDrawFunc(m_vm);
     }catch (pkpy::Exception e) {
         std::cout << e.summary() << std::endl;
     }
-    graphics->endDraw();
+    m_graphics->endDraw();
 
 }
 
 Pycron::~Pycron(){
     CloseWindow();
-    delete vm;
-    delete graphics;
+    delete m_vm;
+    delete m_graphics;
+    delete m_stateManager;
 }
 
 
 void Pycron::StartGameLoop() {
 
-    while (!graphics->windowShouldClose) {
+    while (!m_graphics->m_windowShouldClose) {
         if (IsKeyPressed(KEY_F)) {
-            graphics->toggleFullScreen();
+            m_graphics->toggleFullScreen();
         }
-        graphics->draw(this->stateManager);
+        m_graphics->draw(this->m_stateManager);
     }
 }
 
-void Pycron::bindMethods(pkpy::VM *vm) {
-    vm->bind(vm->builtins, "rnd(min: int, max: int) -> int", getRandomNumber);
-    vm->bind(vm->builtins, "sin(num: float) -> float", getSin);
-    vm->bind(vm->builtins, "cos(num: float) -> float", getCos);
-    vm->bind(vm->builtins, "fps() -> int", getFPS);
+void Pycron::bindMethods() {
+    m_vm->bind(m_vm->builtins, "rnd(min: int, max: int) -> int", getRandomNumber);
+    m_vm->bind(m_vm->builtins, "sin(num: float) -> float", getSin);
+    m_vm->bind(m_vm->builtins, "cos(num: float) -> float", getCos);
+    m_vm->bind(m_vm->builtins, "fps() -> int", getFPS);
 }
 
 

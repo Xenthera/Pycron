@@ -33,8 +33,8 @@ add_executable(Pycron src/main.cpp
         src/StateManager.cpp
         src/StateManager.h
         src/State.h
-        src/GameState.cpp
-        src/GameState.h)
+        src/States/GameState.cpp
+        src/States/GameState.h)
 
 add_subdirectory(dependencies/pocketpy)
 # Declaring our executable
