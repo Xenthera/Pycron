@@ -5,6 +5,7 @@
 #include "GameState.h"
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 
 GameState::GameState(StateManager *stateManager, pkpy::VM* vm) : State(stateManager), m_vm(vm){
     m_updateFunction = nullptr;

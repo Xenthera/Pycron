@@ -6,6 +6,7 @@
 
 StateManager::StateManager(Pycron *pycron) : m_pycron(pycron){
     m_gameState = new GameState(this, m_pycron->m_vm);
+    m_currentState = nullptr;
     RequestStateChange(GAME);
 }
 
