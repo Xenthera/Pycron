@@ -19,7 +19,7 @@ Graphics::Graphics(int screenWidth, int screenHeight, int startupScale) : m_scre
     InitWindow(m_startupScreenWidth, m_startupScreenHeight, "test");
     SetTargetFPS(60);
     m_virtualScreen = LoadRenderTexture(screenWidth, screenHeight);
-
+    m_origin = {0,0};
     m_virtualScreenLocalBounds = {0.0f, 0.0f, (float)m_virtualScreen.texture.width, -(float)m_virtualScreen.texture.height };
     m_virtualScreenWindowBounds = {0.0f, 0.0f, (float)m_windowWidth, (float)m_windowHeight};
     calculateScreenPositionInWindow();
@@ -36,17 +36,6 @@ void Graphics::draw(StateManager* stateManager) {
     }
 
     BeginTextureMode(m_virtualScreen);
-//    //////////
-//        try{
-//            if(updateFunction != nullptr)
-//                vm->call(updateFunction);
-//        } catch(pkpy::Exception e){
-//            std::cout << e.summary() << std::endl;
-//        }
-//
-//        Circle(150,100,50,1);
-//        Text("Hello from C++", 120, 95, 9);
-//    //////////
 
     stateManager->Draw(this);
 
@@ -148,6 +137,16 @@ void Graphics::bindMethods(pkpy::VM *vm) {
         return vm->None;
     }});
 
+    vm->bind(vm->builtins, "rectangle(x: int, y: int, width: int, height: int, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){{
+        float x = pkpy::py_cast<float>(vm, args[0]);
+        float y = pkpy::py_cast<float>(vm, args[1]);
+        float width = pkpy::py_cast<float>(vm, args[2]);
+        float height = pkpy::py_cast<float>(vm, args[3]);
+        float paletteIndex = pkpy::py_cast<float>(vm, args[4]);
+        this->Rectangle(x, y, width, height, paletteIndex);
+        return vm->None;
+    }});
+
     vm->bind(vm->builtins, "text(t: string, x: int, y: int, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){
         pkpy::PyObject* func_str = vm->builtins->attr("str");
         pkpy::PyObject* result = vm->call(func_str,  args[0]);
@@ -172,6 +171,10 @@ void Graphics::Pixel(int x, int y, int paletteIndex) {
 
 void Graphics::Circle(int x, int y, int radius, int paletteIndex) {
     DrawCircle(x, y, radius, Palette[paletteIndex]);
+}
+
+void Graphics::Rectangle(int x, int y, int width, int height, int paletteIndex) {
+    DrawRectangle(x, y, width, height, Palette[paletteIndex]);
 }
 
 void Graphics::Text(std::string s, int x, int y, int paletteIndex) {

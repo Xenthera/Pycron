@@ -29,10 +29,10 @@ private:
 
 public:
     // virtual screen
-    int m_screenWidth;
-    int m_screenHeight;
+    int m_screenWidth = 0;
+    int m_screenHeight = 0;
 
-    bool m_windowShouldClose;
+    bool m_windowShouldClose = false;
 
     static std::vector<Color> Palette;
 
@@ -58,6 +58,7 @@ public:
     void Clear(int paletteIndex);
     void Pixel(int x, int y, int paletteIndex);
     void Circle(int x, int y, int radius, int paletteIndex);
+    void Rectangle(int x, int y, int width, int height, int paletteIndex);
     void Text(std::string s, int x, int y, int paletteIndex);
 
 

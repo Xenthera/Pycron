@@ -60,22 +60,24 @@ void Pycron::StartGameLoop() {
 }
 
 void Pycron::bindMethods() {
-    m_vm->bind(m_vm->builtins, "rnd(min: int, max: int) -> int", getRandomNumber);
+    m_vm->bind(m_vm->builtins, "rnd(min: float, max: float) -> int", getRandomNumber);
     m_vm->bind(m_vm->builtins, "sin(num: float) -> float", getSin);
     m_vm->bind(m_vm->builtins, "cos(num: float) -> float", getCos);
     m_vm->bind(m_vm->builtins, "fps() -> int", getFPS);
+    m_vm->bind(m_vm->builtins, "keyp(keycode: int) -> bool", getKeyPressed);
+    m_vm->bind(m_vm->builtins, "key(keycode: int) -> bool", getKeyDown);
 }
 
 
 pkpy::PyObject* Pycron::getRandomNumber(pkpy::VM* vm, pkpy::ArgsView args) {
-    int min = pkpy::py_cast<int>(vm, args[0]);
-    int max = pkpy::py_cast<int>(vm, args[1]);
+    float min = pkpy::py_cast<float>(vm, args[0]);
+    float max = pkpy::py_cast<float>(vm, args[1]);
     // Seed the random number generator with a random device
     std::random_device rd;
     std::mt19937 gen(rd());
 
     // Define a uniform distribution for the range [min, max]
-    std::uniform_int_distribution<int> distribution(min, max);
+    std::uniform_real_distribution<float> distribution(min, max);
 
     // Generate a random number within the specified range
     return pkpy::py_var(vm, distribution(gen));
@@ -93,5 +95,15 @@ pkpy::PyObject* Pycron::getCos(pkpy::VM* vm, pkpy::ArgsView args) {
 
 pkpy::PyObject* Pycron::getFPS(pkpy::VM* vm, pkpy::ArgsView args) {
     return pkpy::py_var(vm, GetFPS());
+}
+
+pkpy::PyObject *Pycron::getKeyPressed(pkpy::VM *vm, pkpy::ArgsView args) {
+    bool pressed = IsKeyPressed(pkpy::py_cast<int>(vm, args[0]));
+    return pkpy::py_var(vm, pressed);
+}
+
+pkpy::PyObject *Pycron::getKeyDown(pkpy::VM *vm, pkpy::ArgsView args) {
+    bool held = IsKeyDown(pkpy::py_cast<int>(vm, args[0]));
+    return pkpy::py_var(vm, held);
 }
 
