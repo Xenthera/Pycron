@@ -143,7 +143,7 @@ void Graphics::bindMethods(pkpy::VM *vm) {
         float width = pkpy::py_cast<float>(vm, args[2]);
         float height = pkpy::py_cast<float>(vm, args[3]);
         float paletteIndex = pkpy::py_cast<float>(vm, args[4]);
-        this->Rectangle(x, y, width, height, paletteIndex);
+        this->Rect(x, y, width, height, paletteIndex);
         return vm->None;
     }});
 
@@ -173,7 +173,7 @@ void Graphics::Circle(int x, int y, int radius, int paletteIndex) {
     DrawCircle(x, y, radius, Palette[paletteIndex]);
 }
 
-void Graphics::Rectangle(int x, int y, int width, int height, int paletteIndex) {
+void Graphics::Rect(int x, int y, int width, int height, int paletteIndex) {
     DrawRectangle(x, y, width, height, Palette[paletteIndex]);
 }
 

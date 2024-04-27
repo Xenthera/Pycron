@@ -58,7 +58,7 @@ public:
     void Clear(int paletteIndex);
     void Pixel(int x, int y, int paletteIndex);
     void Circle(int x, int y, int radius, int paletteIndex);
-    void Rectangle(int x, int y, int width, int height, int paletteIndex);
+    void Rect(int x, int y, int width, int height, int paletteIndex);
     void Text(std::string s, int x, int y, int paletteIndex);
 
 
