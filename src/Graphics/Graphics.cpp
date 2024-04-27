@@ -6,8 +6,6 @@
 #include "Graphics.h"
 #include "../Utilities.h"
 
-std::vector<Color> Graphics::Palette;
-
 
 Graphics::Graphics(int screenWidth, int screenHeight, int startupScale) : m_screenWidth(screenWidth), m_screenHeight(screenHeight){
     m_startupScreenWidth = screenWidth * startupScale;
@@ -36,7 +34,6 @@ void Graphics::draw(StateManager* stateManager) {
     }
 
     BeginTextureMode(m_virtualScreen);
-
     stateManager->Draw(this);
 
     EndTextureMode();
@@ -56,8 +53,14 @@ void Graphics::loadPalette(std::string path) {
     std::string line;
 
     if(paletteFile.is_open()){
+        int idx = 0;
         while(getline(paletteFile, line)){
-            Palette.push_back(Utilities::ColorFromHex(stoi(line, nullptr, 16)));
+            int color = stoi(line, nullptr, 16);
+            //Palette.push_back();
+            color = color << 8 | 0xFF;
+            m_paletteByColor.insert({color, idx});
+            m_paletteByID.insert({idx, color});
+            idx++;
         }
         paletteFile.close();
     }
@@ -161,24 +164,24 @@ void Graphics::bindMethods(pkpy::VM *vm) {
 }
 
 void Graphics::Clear(int paletteIndex) {
-    if(paletteIndex < 0 || paletteIndex >= Palette.size()) paletteIndex = 0;
-    ClearBackground(Palette[paletteIndex]);
+    if(paletteIndex < 0 || paletteIndex >= m_paletteByID.size()) paletteIndex = 0;
+    ClearBackground(GetColor(m_paletteByID[paletteIndex]));
 }
 
 void Graphics::Pixel(int x, int y, int paletteIndex) {
-    DrawPixel(x, y, Palette[paletteIndex]);
+    DrawPixel(x, y, GetColor(m_paletteByID[paletteIndex]));
 }
 
 void Graphics::Circle(int x, int y, int radius, int paletteIndex) {
-    DrawCircle(x, y, radius, Palette[paletteIndex]);
+    DrawCircle(x, y, radius, GetColor(m_paletteByID[paletteIndex]));
 }
 
 void Graphics::Rect(int x, int y, int width, int height, int paletteIndex) {
-    DrawRectangle(x, y, width, height, Palette[paletteIndex]);
+    DrawRectangle(x, y, width, height, GetColor(m_paletteByID[paletteIndex]));
 }
 
 void Graphics::Text(std::string s, int x, int y, int paletteIndex) {
-    DrawText(s.c_str(), x, y, 5, Palette[paletteIndex]);
+    DrawText(s.c_str(), x, y, 5, GetColor(m_paletteByID[paletteIndex]));
 }
 
 void Graphics::beginDraw() {

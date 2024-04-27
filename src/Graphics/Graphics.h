@@ -4,6 +4,7 @@
 #include "../StateManager.h"
 #include <algorithm>
 #include <vector>
+#include <unordered_map>
 
 class StateManager;
 
@@ -34,7 +35,9 @@ public:
 
     bool m_windowShouldClose = false;
 
-    static std::vector<Color> Palette;
+
+    std::unordered_map<unsigned int, unsigned int> m_paletteByColor; // <hex color, id>
+    std::unordered_map<unsigned int, unsigned int> m_paletteByID;    // <id, hex color>
 
 
 
