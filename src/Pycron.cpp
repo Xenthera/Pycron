@@ -29,7 +29,7 @@ Pycron::Pycron() {
     bindMethods();
 
     m_graphics = new Graphics{virtualScreenWidth, virtualScreenHeight, initialScale};
-    m_graphics->loadPalette("../resources/palette2.hex");
+    m_graphics->loadPalette("resources/thecosmos.hex");
     m_graphics->bindMethods(m_vm);
     m_graphics->updateVMVars(m_vm);
     m_stateManager = new StateManager(this);
@@ -66,6 +66,8 @@ void Pycron::bindMethods() {
     m_vm->bind(m_vm->builtins, "fps() -> int", getFPS);
     m_vm->bind(m_vm->builtins, "keyp(keycode: int) -> bool", getKeyPressed);
     m_vm->bind(m_vm->builtins, "key(keycode: int) -> bool", getKeyDown);
+    m_vm->bind(m_vm->builtins, "mousep(button: int) -> bool", getMousePressed);
+    m_vm->bind(m_vm->builtins, "mouse(button: int) -> bool", getMouseDown);
 }
 
 
@@ -104,6 +106,16 @@ pkpy::PyObject *Pycron::getKeyPressed(pkpy::VM *vm, pkpy::ArgsView args) {
 
 pkpy::PyObject *Pycron::getKeyDown(pkpy::VM *vm, pkpy::ArgsView args) {
     bool held = IsKeyDown(pkpy::py_cast<int>(vm, args[0]));
+    return pkpy::py_var(vm, held);
+}
+
+pkpy::PyObject *Pycron::getMousePressed(pkpy::VM *vm, pkpy::ArgsView args) {
+    bool held = IsMouseButtonPressed(pkpy::py_cast<int>(vm, args[0]));
+    return pkpy::py_var(vm, held);
+}
+
+pkpy::PyObject *Pycron::getMouseDown(pkpy::VM *vm, pkpy::ArgsView args) {
+    bool held = IsMouseButtonDown(pkpy::py_cast<int>(vm, args[0]));
     return pkpy::py_var(vm, held);
 }
 

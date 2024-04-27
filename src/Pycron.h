@@ -35,5 +35,7 @@ public:
     static pkpy::PyObject* getFPS(pkpy::VM* vm, pkpy::ArgsView args);
     static pkpy::PyObject* getKeyPressed(pkpy::VM* vm, pkpy::ArgsView args);
     static pkpy::PyObject* getKeyDown(pkpy::VM* vm, pkpy::ArgsView args);
+    static pkpy::PyObject* getMousePressed(pkpy::VM* vm, pkpy::ArgsView args);
+    static pkpy::PyObject* getMouseDown(pkpy::VM* vm, pkpy::ArgsView args);
 };
 

@@ -1,7 +1,7 @@
 class Scene:
 
     def __init__(self):
-        pass
+        self.paused = False
     
     def update(self):
         pass
