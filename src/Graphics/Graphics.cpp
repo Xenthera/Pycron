@@ -5,6 +5,7 @@
 #include <fstream>
 #include "Graphics.h"
 #include "../Utilities.h"
+#include <raymath.h>
 
 
 Graphics::Graphics(int screenWidth, int screenHeight, int startupScale) : m_screenWidth(screenWidth), m_screenHeight(screenHeight){
@@ -16,10 +17,19 @@ Graphics::Graphics(int screenWidth, int screenHeight, int startupScale) : m_scre
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(m_startupScreenWidth, m_startupScreenHeight, "test");
     SetTargetFPS(60);
+
     m_virtualScreen = LoadRenderTexture(screenWidth, screenHeight);
     m_origin = {0,0};
-    m_virtualScreenLocalBounds = {0.0f, 0.0f, (float)m_virtualScreen.texture.width, -(float)m_virtualScreen.texture.height };
+    m_virtualScreenLocalBounds = {0.0f, 0.0f, (float)m_virtualScreen.texture.width, (float)m_virtualScreen.texture.height };
     m_virtualScreenWindowBounds = {0.0f, 0.0f, (float)m_windowWidth, (float)m_windowHeight};
+
+    m_virtualScreenImageBuffer = GenImageColor(m_screenWidth, m_screenHeight, BLACK);
+    m_virtualScreenColorBuffer = {};
+
+    for (int i = 0; i < screenWidth * screenHeight; ++i) {
+        m_virtualScreenColorBuffer.push_back(GetRandomValue(0, 5));
+    }
+
     calculateScreenPositionInWindow();
 }
 
@@ -33,18 +43,26 @@ void Graphics::draw(StateManager* stateManager) {
         calculateScreenPositionInWindow();
     }
 
-    BeginTextureMode(m_virtualScreen);
     stateManager->Draw(this);
-
-    EndTextureMode();
-
+    copyBufferToGPU();
     renderVirtualScreen();
+}
+
+void Graphics::copyBufferToGPU() {
+    Color* pixel_data = LoadImageColors(m_virtualScreenImageBuffer);
+    for (int i = 0; i < m_screenWidth * m_screenHeight; ++i) {
+        pixel_data[i] = GetColor(m_paletteByID[m_virtualScreenColorBuffer[i]]);
+    }
+    UpdateTexture(m_virtualScreen.texture, pixel_data);
+    UnloadImageColors(pixel_data);
 }
 
 void Graphics::renderVirtualScreen() {
     BeginDrawing();
         ClearBackground(BLACK);
         DrawTexturePro(m_virtualScreen.texture, m_virtualScreenLocalBounds, m_virtualScreenWindowBounds, m_origin, 0.0f, WHITE);
+        DrawText(std::to_string(GetFPS()).c_str(), 10, 10, 30, YELLOW);
+
     EndDrawing();
 }
 
@@ -164,32 +182,131 @@ void Graphics::bindMethods(pkpy::VM *vm) {
 }
 
 void Graphics::Clear(int paletteIndex) {
-    if(paletteIndex < 0 || paletteIndex >= m_paletteByID.size()) paletteIndex = 0;
-    ClearBackground(GetColor(m_paletteByID[paletteIndex]));
+    for (int y = 0; y < m_screenHeight; ++y) {
+        for (int x = 0; x < m_screenWidth; ++x) {
+            Pixel(x, y, paletteIndex);
+        }
+    }
 }
 
 void Graphics::Pixel(int x, int y, int paletteIndex) {
-    DrawPixel(x, y, GetColor(m_paletteByID[paletteIndex]));
+    paletteIndex = Clamp(paletteIndex, 0, m_paletteByID.size() - 1);
+    if(x < 0 || y < 0 || x >= m_screenWidth || y >= m_screenHeight) return;
+
+    m_virtualScreenColorBuffer[y * m_screenWidth + x] = paletteIndex;
 }
 
 void Graphics::Circle(int x, int y, int radius, int paletteIndex) {
-    DrawCircle(x, y, radius, GetColor(m_paletteByID[paletteIndex]));
+    Ellipse(x, y, radius, radius, paletteIndex);
 }
 
+void Graphics::Ellipse(int x, int y, int w, int h, int paletteIndex){
+
+    int x0 = x - w;
+    int y0 = y - h;
+    int x1 = x + w;
+    int y1 = y + h;
+
+    if(x0 > x1 || y0 > y1)
+        return;
+
+    int a = abs(x1 - x0), b = abs(y1 - y0), b1 = b & 1;
+    int dx = 4 * (1 - a) * b * b, dy = 4 * (b1 + 1) * a * a;
+    int err = dx + dy + b1 * a * a, e2;
+
+    if (x0 > x1) { x0 = x1; x1 += a; }
+    if (y0 > y1) y0 = y1;
+    y0 += (b + 1) / 2; y1 = y0 - b1;
+    a *= 8 * a; b1 = 8 * b * b;
+
+    int prevY = y0;
+    do
+    {
+        Pixel( x1, y0, paletteIndex);
+        Pixel( x0, y0, paletteIndex);
+        Pixel( x0, y1, paletteIndex);
+        Pixel( x1, y1, paletteIndex);
+        if(y0 != prevY && (y0 - y) != h){
+            h_line(x1, y0, x - (x1 - x) + 1, paletteIndex);
+            h_line(x1, y - (y0 - y), x - (x1 - x) + 1, paletteIndex);
+        }
+        prevY = y0;
+        e2 = 2 * err;
+        if (e2 <= dy) { y0++; y1--; err += dy += a; }  /* y step */
+        if (e2 >= dx || 2 * err > dy) { x0++; x1--; err += dx += b1; } /* x step */
+    } while (x0 <= x1);
+
+    while (y0-y1 < b)
+    {  /* too early stop of flat ellipses a=1 */
+        Pixel( x0 - 1, y0,    paletteIndex); /* -> finish tip of ellipse */
+        Pixel( x1 + 1, y0++,  paletteIndex);
+        Pixel( x0 - 1, y1,    paletteIndex);
+        Pixel( x1 + 1, y1--,  paletteIndex);
+    }
+
+
+    h_line(x - w, y, x + w, paletteIndex);
+}
+
+void Graphics::EllipseBorder(int x, int y, int w, int h, int paletteIndex){
+
+    int x0 = x - w;
+    int y0 = y - h;
+    int x1 = x + w;
+    int y1 = y + h;
+
+    if(x0 > x1 || y0 > y1)
+        return;
+
+    int a = abs(x1 - x0), b = abs(y1 - y0), b1 = b & 1;
+    int dx = 4 * (1 - a) * b * b, dy = 4 * (b1 + 1) * a * a;
+    int err = dx + dy + b1 * a * a, e2;
+
+    if (x0 > x1) { x0 = x1; x1 += a; }
+    if (y0 > y1) y0 = y1;
+    y0 += (b + 1) / 2; y1 = y0 - b1;
+    a *= 8 * a; b1 = 8 * b * b;
+
+    do
+    {
+        Pixel( x1, y0, paletteIndex);
+        Pixel( x0, y0, paletteIndex);
+        Pixel( x0, y1, paletteIndex);
+        Pixel( x1, y1, paletteIndex);
+
+        e2 = 2 * err;
+        if (e2 <= dy) { y0++; y1--; err += dy += a; }  /* y step */
+        if (e2 >= dx || 2 * err > dy) { x0++; x1--; err += dx += b1; } /* x step */
+    } while (x0 <= x1);
+
+    while (y0-y1 < b)
+    {  /* too early stop of flat ellipses a=1 */
+        Pixel( x0 - 1, y0,    paletteIndex); /* -> finish tip of ellipse */
+        Pixel( x1 + 1, y0++,  paletteIndex);
+        Pixel( x0 - 1, y1,    paletteIndex);
+        Pixel( x1 + 1, y1--,  paletteIndex);
+    }
+
+}
+
+
+
+
 void Graphics::Rect(int x, int y, int width, int height, int paletteIndex) {
-    DrawRectangle(x, y, width, height, GetColor(m_paletteByID[paletteIndex]));
+    for (int i = 0; i < height; ++i) {
+        h_line(x, y + i, x + width - 1, paletteIndex);
+    }
+}
+
+void Graphics::RectBorder(int x, int y, int width, int height, int paletteIndex) {
+    h_line(x, y, x + width - 1, paletteIndex);
+    h_line(x, y + height - 1, x + width - 1, paletteIndex);
+    v_line(x, y + 1, y + height - 2, paletteIndex);
+    v_line(x + width - 1, y + 1, y + height - 2, paletteIndex);
 }
 
 void Graphics::Text(std::string s, int x, int y, int paletteIndex) {
-    DrawText(s.c_str(), x, y, 5, GetColor(m_paletteByID[paletteIndex]));
-}
 
-void Graphics::beginDraw() {
-    BeginTextureMode(m_virtualScreen);
-}
-
-void Graphics::endDraw() {
-    EndTextureMode();
 }
 
 void Graphics::updateVMVars(pkpy::VM* vm) {
@@ -198,6 +315,35 @@ void Graphics::updateVMVars(pkpy::VM* vm) {
     vm->builtins->attr().set("width", pkpy::py_var(vm, m_screenWidth));
     vm->builtins->attr().set("height", pkpy::py_var(vm, m_screenHeight));
 }
+
+void Graphics::h_line(int x1, int y, int x2, int paletteIndex) {
+    if(y < 0 || y >= m_screenHeight) return;
+    int startX = x1;
+    int endX = x2;
+    if(x1 > x2){
+        startX = x2;
+        endX = x1;
+    }
+    for (int i = startX; i <= endX; ++i) {
+        Pixel(i, y, paletteIndex);
+    }
+}
+
+void Graphics::v_line(int x, int y1, int y2, int paletteIndex) {
+    if(x < 0 || x >= m_screenWidth) return;
+    int startY = y1;
+    int endY = y2;
+    if(y1 > y2){
+        startY = y2;
+        endY = y1;
+    }
+    for (int i = startY; i <= endY; ++i) {
+        Pixel(x, i, paletteIndex);
+    }
+}
+
+
+
 
 
 

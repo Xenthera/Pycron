@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <vector>
 #include <unordered_map>
+#include <array>
 
 class StateManager;
 
@@ -21,12 +22,17 @@ private:
     Rectangle m_virtualScreenWindowBounds; // size of rect texture on window
     Vector2 m_origin; // position of rect texture on window
     Rectangle m_virtualScreenLocalBounds; // virtual screen bounds
-    RenderTexture2D m_virtualScreen; // actual pixel screen
+    RenderTexture2D m_virtualScreen;
+    std::vector<uint8_t> m_virtualScreenColorBuffer;
+    Image m_virtualScreenImageBuffer;
 
 
 private:
     void renderVirtualScreen();
     void calculateScreenPositionInWindow();
+
+    void h_line(int x1, int y, int x2, int paletteIndex);
+    void v_line(int x, int y1, int y2, int paletteIndex);
 
 public:
     // virtual screen
@@ -46,8 +52,7 @@ public:
 
     void draw(StateManager* stateManager);
 
-    void beginDraw();
-    void endDraw();
+    void copyBufferToGPU();
 
     void updateVMVars(pkpy::VM* vm);
 
@@ -61,7 +66,10 @@ public:
     void Clear(int paletteIndex);
     void Pixel(int x, int y, int paletteIndex);
     void Circle(int x, int y, int radius, int paletteIndex);
+    void Ellipse(int x, int y, int width, int height, int paletteIndex);
+    void EllipseBorder(int x, int y, int width, int height, int paletteIndex);
     void Rect(int x, int y, int width, int height, int paletteIndex);
+    void RectBorder(int x, int y, int width, int height, int paletteIndex);
     void Text(std::string s, int x, int y, int paletteIndex);
 
 
