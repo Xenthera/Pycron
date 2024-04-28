@@ -26,6 +26,8 @@ private:
     std::vector<uint8_t> m_virtualScreenColorBuffer;
     Image m_virtualScreenImageBuffer;
 
+    static void swap(float &a, float &b);
+
 
 private:
     void renderVirtualScreen();
@@ -72,7 +74,7 @@ public:
     void Rect(int x, int y, int width, int height, int paletteIndex);
     void RectBorder(int x, int y, int width, int height, int paletteIndex);
     void Text(std::string s, int x, int y, int paletteIndex);
-    void Triangle(int x1, int y1, int x2, int y2, int x3, int y3, int paletteIndex);
+    void Triangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int paletteIndex);
 
     int GetPixel(int x, int y);
 

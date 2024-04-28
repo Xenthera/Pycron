@@ -1,6 +1,7 @@
 from scene import Scene
 from triangles import draw_line
-
+from triangles import lineTri
+import math
 white = 63
 fire1 = 6
 fire2 = 5
@@ -132,5 +133,24 @@ class Particles(Scene):
         text("Num Particles: " + str(len(self.fireParts) + len(self.waterParts)), 2, 15, 30)
         text("FPS: " + str(fps()), 3, 29, 59)
         text("FPS: " + str(fps()), 2, 28, 29)
+        # triangle(10, 10, 50, 10, mouseX, mouseY, 5)
+        # lineTri(10, 10, 50, 10, mouseX, mouseY, 9)
+        pixel(mouseX, mouseY, 9)
+        cx = width/2
+        cy = height/2
+        ang = math.atan2(mouseY - cy, mouseX - cx)
+        dist = math.sqrt(math.pow(mouseX - cx, 2) + math.pow(mouseY - cy, 2))
+
+        x2 = cx + cos(ang + (math.pi * 2 / 3)) * dist
+        y2 = cy + sin(ang + (math.pi * 2 / 3)) * dist
+
+        x3 = cx + cos(ang + (math.pi * 2 / 3 * 2)) * dist
+        y3 = cy + sin(ang + (math.pi * 2 / 3 * 2)) * dist
+
+        # triangle(mouseX, mouseY, x2, y2, x3, y3, 9)
+
+        # lineTri(mouseX, mouseY, x2, y2, x3, y3, 8)
+        
+
 
 

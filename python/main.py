@@ -46,6 +46,8 @@ def update():
 
     text(scenes[current_scene].title, 2, 15, 63)
 
+    
+
 
 
 
