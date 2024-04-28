@@ -68,6 +68,40 @@ void Pycron::bindMethods() {
     m_vm->bind(m_vm->builtins, "key(keycode: int) -> bool", getKeyDown);
     m_vm->bind(m_vm->builtins, "mousep(button: int) -> bool", getMousePressed);
     m_vm->bind(m_vm->builtins, "mouse(button: int) -> bool", getMouseDown);
+    m_vm->bind(m_vm->builtins, "debug(msg: any) -> None", [](pkpy::VM* vm, pkpy::ArgsView args){
+        pkpy::PyObject* func_str = vm->builtins->attr("str");
+        pkpy::PyObject* result = vm->call(func_str,  args[0]);
+        std::string s = pkpy::py_cast<pkpy::Str&>(vm, result).str();
+
+        std::cout << s.c_str() << "\n";
+        return vm->None;
+    });
+    m_vm->bind(m_vm->builtins, "fmod(a: float, b: float) -> float", [](pkpy::VM* vm, pkpy::ArgsView args){
+        float a = pkpy::py_cast<float>(vm, args[0]);
+        float b = pkpy::py_cast<float>(vm, args[1]);
+
+        float mod;
+        // Handling negative values
+        if (a < 0)
+            mod = -a;
+        else
+            mod =  a;
+        if (b < 0)
+            b = -b;
+
+        // Finding mod by repeated subtraction
+
+        while (mod >= b)
+            mod = mod - b;
+
+        // Sign of result typically depends
+        // on sign of a.
+        if (a < 0)
+            return pkpy::py_var(vm, -mod);
+
+        return pkpy::py_var(vm, mod);
+    });
+
 }
 
 

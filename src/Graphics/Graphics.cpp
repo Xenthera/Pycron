@@ -131,34 +131,37 @@ void Graphics::toggleFullScreen() {
 }
 
 void Graphics::bindMethods(pkpy::VM *vm) {
-//    vm->bind(vm->builtins, "clear(color: int)", reinterpret_cast<pkpy::NativeFuncC>(Clear));
-//    vm->bind(vm->builtins, "pixel(x: int, y: int, color: int)", reinterpret_cast<pkpy::NativeFuncC>(Pixel));
-//    vm->bind(vm->builtins, "circle(x: int, y: int, radius: float, color: int)", reinterpret_cast<pkpy::NativeFuncC>(Circle));
-
-    vm->bind(vm->builtins, "clear(color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){{
+    vm->bind(vm->builtins, "clear(color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){
         int index = pkpy::py_cast<int>(vm, args[0]);
         Clear(index);
         return vm->None;
-    }});
+    });
 
-    vm->bind(vm->builtins, "pixel(x: int, y: int, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){{
+    vm->bind(vm->builtins, "pixel(x: int, y: int, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){
         float x = pkpy::py_cast<float>(vm, args[0]);
         float y = pkpy::py_cast<float>(vm, args[1]);
         float paletteIndex = pkpy::py_cast<float>(vm, args[2]);
         this->Pixel(x, y, paletteIndex);
         return vm->None;
-    }});
+    });
 
-    vm->bind(vm->builtins, "circle(x: int, y: int, radius: float, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){{
+    vm->bind(vm->builtins, "get_pixel(x: int, y: int) -> int", [this](pkpy::VM* vm, pkpy::ArgsView args){
+        float x = pkpy::py_cast<float>(vm, args[0]);
+        float y = pkpy::py_cast<float>(vm, args[1]);
+
+        return pkpy::py_var(vm, this->GetPixel(x, y));
+    });
+
+    vm->bind(vm->builtins, "circle(x: int, y: int, radius: float, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){
         float x = pkpy::py_cast<float>(vm, args[0]);
         float y = pkpy::py_cast<float>(vm, args[1]);
         float radius = pkpy::py_cast<float>(vm, args[2]);
         float paletteIndex = pkpy::py_cast<float>(vm, args[3]);
         this->Circle(x, y, radius, paletteIndex);
         return vm->None;
-    }});
+    });
 
-    vm->bind(vm->builtins, "rectangle(x: int, y: int, width: int, height: int, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){{
+    vm->bind(vm->builtins, "rectangle(x: int, y: int, width: int, height: int, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){
         float x = pkpy::py_cast<float>(vm, args[0]);
         float y = pkpy::py_cast<float>(vm, args[1]);
         float width = pkpy::py_cast<float>(vm, args[2]);
@@ -166,7 +169,19 @@ void Graphics::bindMethods(pkpy::VM *vm) {
         float paletteIndex = pkpy::py_cast<float>(vm, args[4]);
         this->Rect(x, y, width, height, paletteIndex);
         return vm->None;
-    }});
+    });
+
+    vm->bind(vm->builtins, "triangle(x1: int, y1: int, x2: int, y2: int, x3: int, y3: int, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){
+        float x1 = pkpy::py_cast<float>(vm, args[0]);
+        float y1 = pkpy::py_cast<float>(vm, args[1]);
+        float x2 = pkpy::py_cast<float>(vm, args[2]);
+        float y2 = pkpy::py_cast<float>(vm, args[3]);
+        float x3 = pkpy::py_cast<float>(vm, args[4]);
+        float y3 = pkpy::py_cast<float>(vm, args[5]);
+        float paletteIndex = pkpy::py_cast<float>(vm, args[6]);
+        this->Triangle(x1, y1, x2, y2, x3, y3, paletteIndex);
+        return vm->None;
+    });
 
     vm->bind(vm->builtins, "text(t: string, x: int, y: int, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){
         pkpy::PyObject* func_str = vm->builtins->attr("str");
@@ -342,6 +357,104 @@ void Graphics::v_line(int x, int y1, int y2, int paletteIndex) {
     }
 }
 
+int Graphics::GetPixel(int x, int y) {
+    if(x < 0 || y < 0 || x >= m_screenWidth || y >= m_screenHeight) return 0;
+
+    return m_virtualScreenColorBuffer[y * m_screenWidth + x];
+}
+
+void Graphics::fillBottomFlatTriangle(float x1, float y1, float x2, float y2, float x3, float y3, int paletteIndex)
+{
+    float invslope1 = (x2 - x1) / (y2 - y1);
+    float invslope2 = (x3 - x1) / (y3 - y1);
+
+    float curx1 = x1;
+    float curx2 = x1;
+
+    for (int scanlineY = y1; scanlineY <= y2; scanlineY++)
+    {
+        h_line((int)curx1, scanlineY, (int)curx2, paletteIndex);
+        curx1 += invslope1;
+        curx2 += invslope2;
+    }
+}
+
+void Graphics::fillTopFlatTriangle(float x1, float y1, float x2, float y2, float x3, float y3, int paletteIndex)
+{
+    float invslope1 = (x3 - x1) / (y3 - y1);
+    float invslope2 = (x3 - x2) / (y3 - y2);
+
+    float curx1 = x3;
+    float curx2 = x3;
+
+    for (int scanlineY = y3; scanlineY > y1; scanlineY--)
+    {
+        h_line((int)curx1, scanlineY, (int)curx2, paletteIndex);
+        curx1 -= invslope1;
+        curx2 -= invslope2;
+    }
+}
+
+
+void Graphics::Triangle(int x1, int y1, int x2, int y2, int x3, int y3, int paletteIndex)
+{
+    int aX = x1;
+    int aY = y1;
+    int bX = x2;
+    int bY = y2;
+    int cX = x3;
+    int cY = y3;
+
+    if(bY < aY){
+        int t = bY;
+        bY = aY;
+        aY = t;
+        t = bX;
+        bX = aX;
+        aX = t;
+    }
+
+    if(cY < aY){
+        int t = cY;
+        cY = aY;
+        aY = t;
+        t = cX;
+        cX = aX;
+        aX = t;
+    }
+
+    if(cY < bY){
+        int t = cY;
+        cY = bY;
+        bY = t;
+        t = cX;
+        cX = bX;
+        bX = t;
+    }
+
+    //std::cout << aX << " " << aY << " " << bX << " " << bY << " " << cX << " " << cY << "\n";
+
+    /* here we know that v1.y <= v2.y <= v3.y */
+    /* check for trivial case of bottom-flat triangle */
+    if (bY == cY)
+    {
+        fillBottomFlatTriangle(aX, aY, bX, bY, cX, cY, paletteIndex);
+    }
+        /* check for trivial case of top-flat triangle */
+    else if (aY == bY)
+    {
+        fillTopFlatTriangle(aX, aY, bX, bY, cX, cY, paletteIndex);
+    }
+    else
+    {
+        /* general case - split the triangle in a topflat and bottom-flat one */
+        int dX = aX + ((float)(bY - aY) / (float)(cY - aY)) * (cX - aX);
+        int dY = bY;
+
+        fillBottomFlatTriangle(aX, aY, bX, bY, dX, dY, paletteIndex);
+        fillTopFlatTriangle(bX, bY, dX, dY, cX, cY, paletteIndex);
+    }
+}
 
 
 

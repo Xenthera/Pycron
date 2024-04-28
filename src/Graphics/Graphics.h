@@ -33,7 +33,8 @@ private:
 
     void h_line(int x1, int y, int x2, int paletteIndex);
     void v_line(int x, int y1, int y2, int paletteIndex);
-
+    void fillBottomFlatTriangle(float x1, float y1, float x2, float y2, float x3, float y3, int paletteIndex);
+    void fillTopFlatTriangle(float x1, float y1, float x2, float y2, float x3, float y3, int paletteIndex);
 public:
     // virtual screen
     int m_screenWidth = 0;
@@ -71,6 +72,9 @@ public:
     void Rect(int x, int y, int width, int height, int paletteIndex);
     void RectBorder(int x, int y, int width, int height, int paletteIndex);
     void Text(std::string s, int x, int y, int paletteIndex);
+    void Triangle(int x1, int y1, int x2, int y2, int x3, int y3, int paletteIndex);
+
+    int GetPixel(int x, int y);
 
 
 };
