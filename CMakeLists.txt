@@ -9,6 +9,7 @@ set(FETCHCONTENT_QUIET FALSE)
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # don't build the supplied examples
 set(BUILD_GAMES    OFF CACHE BOOL "" FORCE) # don't build the supplied example games
 
+#raylib
 FetchContent_Declare(
         raylib
         GIT_REPOSITORY "https://github.com/raysan5/raylib.git"
@@ -17,6 +18,10 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(raylib)
+
+#json
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+FetchContent_MakeAvailable(json)
 
 # Adding our source files
 file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/sources/*.c") # Define PROJECT_SOURCES as a list of all source files
@@ -34,13 +39,15 @@ add_executable(Pycron src/main.cpp
         src/StateManager.h
         src/State.h
         src/States/GameState.cpp
-        src/States/GameState.h)
+        src/States/GameState.h
+        src/Graphics/Font.cpp
+        src/Graphics/Font.h)
 
 add_subdirectory(dependencies/pocketpy)
 # Declaring our executable
 target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDE})
-target_link_libraries(${PROJECT_NAME} PRIVATE raylib pocketpy)
+target_link_libraries(${PROJECT_NAME} PRIVATE raylib nlohmann_json::nlohmann_json pocketpy)
 
 
 # Setting ASSETS_PATH

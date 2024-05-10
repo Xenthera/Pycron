@@ -10,6 +10,12 @@ StateManager::StateManager(Pycron *pycron) : m_pycron(pycron){
     RequestStateChange(GAME);
 }
 
+StateManager::~StateManager() {
+    m_currentState = nullptr;
+    delete m_gameState;
+}
+
+
 void StateManager::RequestStateChange(StateManager::StateType state) {
     if(m_currentState){
         m_currentState->OnExit();
@@ -47,7 +53,3 @@ void StateManager::Draw(Graphics *graphics) {
     }
 }
 
-StateManager::~StateManager() {
-    m_currentState = nullptr;
-    delete m_gameState;
-}

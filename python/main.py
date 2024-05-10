@@ -6,6 +6,7 @@ class Palette(Scene):
 
     def __init__(self):
         super().__init__()
+        self.title = "Palette"
 
     def update(self):
         pass
@@ -43,8 +44,8 @@ def update():
     if(not scenes[current_scene].paused):
         scenes[current_scene].update()
     scenes[current_scene].draw()    
-
-    text(scenes[current_scene].title, 2, 15, 63)
+    text("if(x != 22.252f && y % 2 == 0) { break; }", 2, 40, 32)
+    #text("Test" + scenes[current_scene].title, 2, 15, 32)
 
     
 

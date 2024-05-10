@@ -50,6 +50,7 @@ class Particles(Scene):
             self.waterParts.append(Particle(width/2, height/2, rnd(-1, 1), rnd(-1, 1)))
 
         self.counter = 0
+        self.title = "Particles"
 
 
     def update(self):

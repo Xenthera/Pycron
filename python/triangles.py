@@ -7,7 +7,7 @@ def draw_line(x0, y0, x1, y1, c):
     y0 = int(y0)
     x1 = int(x1)
     y1 = int(y1)
-    "Bresenham's line algorithm"
+
     dx = abs(x1 - x0)
     dy = abs(y1 - y0)
     x, y = x0, y0
@@ -61,6 +61,7 @@ class Triangles(Scene):
         self.count = 0
         self.tpo3 = (2 * 3.141592654)/3
         self.skip = False
+        self.title = "Flying Triangles"
 
 
 
@@ -76,7 +77,7 @@ class Triangles(Scene):
             y = rnd(0, height)
             c = 0
             if(rnd(0,9) < 5):
-                c = get_pixel(x,y-3)
+                c = get_pixel(x -3 ,y-3)
             else:
                 c = 0
 

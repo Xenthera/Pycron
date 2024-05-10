@@ -2,10 +2,13 @@
 #include "raylib.h"
 #include "pocketpy/vm.h"
 #include "../StateManager.h"
+#include "Font.h"
+
 #include <algorithm>
 #include <vector>
 #include <unordered_map>
 #include <array>
+
 
 class StateManager;
 
@@ -25,6 +28,8 @@ private:
     RenderTexture2D m_virtualScreen;
     std::vector<uint8_t> m_virtualScreenColorBuffer;
     Image m_virtualScreenImageBuffer;
+    PixelFont* m_currentFont;
+    PixelFont* m_NormalFont;
 
     static void swap(float &a, float &b);
 
@@ -35,8 +40,7 @@ private:
 
     void h_line(int x1, int y, int x2, int paletteIndex);
     void v_line(int x, int y1, int y2, int paletteIndex);
-    void fillBottomFlatTriangle(float x1, float y1, float x2, float y2, float x3, float y3, int paletteIndex);
-    void fillTopFlatTriangle(float x1, float y1, float x2, float y2, float x3, float y3, int paletteIndex);
+
 public:
     // virtual screen
     int m_screenWidth = 0;
@@ -52,6 +56,7 @@ public:
 
 public:
     Graphics(int screenWidth, int screenHeight, int startupScale);
+    ~Graphics();
 
     void draw(StateManager* stateManager);
 
@@ -73,7 +78,7 @@ public:
     void EllipseBorder(int x, int y, int width, int height, int paletteIndex);
     void Rect(int x, int y, int width, int height, int paletteIndex);
     void RectBorder(int x, int y, int width, int height, int paletteIndex);
-    void Text(std::string s, int x, int y, int paletteIndex);
+    void Text(const std::string& s, int x, int y, int paletteIndex);
     void Triangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int paletteIndex);
 
     int GetPixel(int x, int y);

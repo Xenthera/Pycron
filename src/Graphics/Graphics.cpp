@@ -2,13 +2,18 @@
 // Created by Bobby Lucero on 4/20/24.
 //
 
-#include <fstream>
 #include "Graphics.h"
 #include "../Utilities.h"
 #include <raymath.h>
 
+#include <fstream>
+
 
 Graphics::Graphics(int screenWidth, int screenHeight, int startupScale) : m_screenWidth(screenWidth), m_screenHeight(screenHeight){
+
+    m_NormalFont = new PixelFont(5, 7, "resources/fonts/main.font");
+    m_currentFont = m_NormalFont;
+
     m_startupScreenWidth = screenWidth * startupScale;
     m_startupScreenHeight = screenHeight * startupScale;
     m_windowWidth = m_startupScreenWidth;
@@ -25,16 +30,19 @@ Graphics::Graphics(int screenWidth, int screenHeight, int startupScale) : m_scre
 
     m_virtualScreenImageBuffer = GenImageColor(m_screenWidth, m_screenHeight, BLACK);
     m_virtualScreenColorBuffer = {};
-
-    for (int i = 0; i < screenWidth * screenHeight; ++i) {
-        m_virtualScreenColorBuffer.push_back(GetRandomValue(0, 5));
-    }
+    m_virtualScreenColorBuffer.resize(screenWidth * screenHeight);
 
     calculateScreenPositionInWindow();
+
+}
+
+Graphics::~Graphics() {
+    delete m_NormalFont;
+    m_NormalFont = nullptr;
+    m_currentFont = nullptr;
 }
 
 void Graphics::draw(StateManager* stateManager) {
-
     m_windowShouldClose = WindowShouldClose();
 
     if (IsWindowResized()) {
@@ -320,8 +328,19 @@ void Graphics::RectBorder(int x, int y, int width, int height, int paletteIndex)
     v_line(x + width - 1, y + 1, y + height - 2, paletteIndex);
 }
 
-void Graphics::Text(std::string s, int x, int y, int paletteIndex) {
+void Graphics::Text(const std::string& s, int x, int y, int paletteIndex) {
 
+    for (int i = 0; i < s.size(); ++i) {
+        char c = s[i];
+        std::string bitData = m_currentFont->GetCharData((int)c);
+
+        //std::cout << c << ": " << (int)c << " = " << bitData << std::endl;
+        for (int j = 0; j < bitData.size(); ++j) {
+            if(bitData[j] == '1')
+                Pixel(x + (j % m_currentFont->GetWidth()) + ((m_currentFont->GetWidth() + 1) * i), y + (j / m_currentFont->GetWidth()), paletteIndex);
+
+        }
+    }
 }
 
 void Graphics::updateVMVars(pkpy::VM* vm) {
@@ -506,6 +525,8 @@ void Graphics::swap(float &a, float &b) {
     a = b;
     b = temp;
 }
+
+
 
 
 
