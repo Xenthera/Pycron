@@ -1,16 +1,11 @@
 #pragma once
 
-#include "Graphics/Graphics.h"
-#include "StateManager.h"
 
-class Graphics;
-class StateManager;
+#include "Graphics/Graphics.h"
 
 class State {
-private:
-    StateManager* m_stateManager;
 protected:
-    explicit State(StateManager* stateManager) : m_stateManager(stateManager){}
+    State(){}
 public:
     virtual ~State() = default;
     virtual void Draw(Graphics* graphics) = 0;

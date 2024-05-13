@@ -6,8 +6,9 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
+#include "../Pycron.h"
 
-GameState::GameState(StateManager *stateManager, pkpy::VM* vm) : State(stateManager), m_vm(vm){
+GameState::GameState(pkpy::VM* vm) :m_vm(vm){
     m_updateFunction = nullptr;
     m_previousError = "";
 }
@@ -29,7 +30,8 @@ void GameState::OnEnter() {
 }
 
 void GameState::OnExit() {
-
+    m_vm->_lazy_modules.clear();
+    m_updateFunction = m_vm->None;
 }
 
 void GameState::onKeyPressed(int key) {

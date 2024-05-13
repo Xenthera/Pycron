@@ -1,6 +1,7 @@
 #pragma once
 #include "../State.h"
-class GameState : public State  {
+
+class GameState : public State {
 
 public:
 
@@ -8,7 +9,7 @@ public:
     std::string m_previousError;
     bool m_errorThrown = false;
 
-    GameState(StateManager* stateManager, pkpy::VM* vm);
+    GameState(pkpy::VM* vm);
 
     void Draw(Graphics* graphics) override;
     void OnEnter() override;

@@ -1,14 +1,14 @@
 #pragma once
 
-#include "State.h"
 #include "Pycron.h"
 #include "Graphics/Graphics.h"
 #include "States/GameState.h"
+#include "States/EditorState.h"
 
 class Pycron;
-class State;
 class Graphics;
 class GameState;
+class EditorState;
 
 class StateManager {
 private:
@@ -21,6 +21,8 @@ private:
     State* m_currentState;
     Pycron* m_pycron;
     GameState* m_gameState;
+    EditorState* m_editorState;
+
 
 public:
     explicit StateManager(Pycron* pycron);

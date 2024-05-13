@@ -1,7 +1,6 @@
 #pragma once
 #include "raylib.h"
 #include "pocketpy/vm.h"
-#include "../StateManager.h"
 #include "Font.h"
 
 #include <algorithm>
@@ -31,9 +30,6 @@ private:
     PixelFont* m_currentFont;
     PixelFont* m_NormalFont;
 
-    static void swap(float &a, float &b);
-
-
 private:
     void renderVirtualScreen();
     void calculateScreenPositionInWindow();
@@ -48,8 +44,6 @@ public:
 
     bool m_windowShouldClose = false;
 
-
-    std::unordered_map<unsigned int, unsigned int> m_paletteByColor; // <hex color, id>
     std::unordered_map<unsigned int, unsigned int> m_paletteByID;    // <id, hex color>
 
 
@@ -59,6 +53,8 @@ public:
     ~Graphics();
 
     void draw(StateManager* stateManager);
+    int rgbToID(int r, int g, int b);
+
 
     void copyBufferToGPU();
 

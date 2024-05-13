@@ -19,6 +19,11 @@ class Palette(Scene):
                 rectangle(10 + (i * 20), 10 + (j * 20), 18, 18, (j * 8 + i))
                 text(str(j * 8 + i), 11 + (i * 20), 10 + (j * 20), 63)
 
+class RGBTest(Scene):
+    def __init__(self):
+        super().__init__()
+        self.title = "RGB To Palette"
+
 
 scenes = [Particles(), Triangles(), Palette()]
 current_scene = 0
@@ -43,9 +48,8 @@ def update():
 
     if(not scenes[current_scene].paused):
         scenes[current_scene].update()
-    scenes[current_scene].draw()    
-    text("if(x != 22.252f && y % 2 == 0) { break; }", 2, 40, 32)
-    #text("Test" + scenes[current_scene].title, 2, 15, 32)
+    scenes[current_scene].draw()
+
 
     
 

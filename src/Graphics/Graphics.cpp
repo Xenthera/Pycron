@@ -5,7 +5,7 @@
 #include "Graphics.h"
 #include "../Utilities.h"
 #include <raymath.h>
-
+#include "../StateManager.h"
 #include <fstream>
 
 
@@ -84,7 +84,6 @@ void Graphics::loadPalette(std::string path) {
             int color = stoi(line, nullptr, 16);
             //Palette.push_back();
             color = color << 8 | 0xFF;
-            m_paletteByColor.insert({color, idx});
             m_paletteByID.insert({idx, color});
             idx++;
         }
@@ -107,6 +106,30 @@ void Graphics::calculateScreenPositionInWindow() {
         m_origin.x = 0;
         m_origin.y = -(m_windowHeight / 2.0f - (m_virtualScreenWindowBounds.height / 2.0f));
     }
+}
+
+int Graphics::rgbToID(int r, int g, int b) {
+    r = Clamp(r, 0, 255);
+    g = Clamp(g, 0, 255);
+    b = Clamp(b, 0, 255);
+    uint8_t idx = 0;
+    Color c = GetColor(m_paletteByID[idx]);
+    double minDist = std::pow(r - c.r, 2) +
+                     std::pow(g - c.g, 2) +
+                     std::pow(b - c.b, 2);
+
+    for(const auto& paletteColor : m_paletteByID){
+        c = GetColor(paletteColor.second);
+        double dist = std::pow(r - c.r, 2) +
+                      std::pow(g - c.g, 2) +
+                      std::pow(b - c.b, 2);
+        if(dist < minDist){
+            minDist = dist;
+            idx = paletteColor.first;
+        }
+    }
+
+    return idx;
 }
 
 int Graphics::mouseX() {
@@ -312,9 +335,6 @@ void Graphics::EllipseBorder(int x, int y, int w, int h, int paletteIndex){
 
 }
 
-
-
-
 void Graphics::Rect(int x, int y, int width, int height, int paletteIndex) {
     for (int i = 0; i < height; ++i) {
         h_line(x, y + i, x + width - 1, paletteIndex);
@@ -518,12 +538,6 @@ void Graphics::Triangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t 
     }
 
 
-}
-
-void Graphics::swap(float &a, float &b) {
-    float temp = a;
-    a = b;
-    b = temp;
 }
 
 
