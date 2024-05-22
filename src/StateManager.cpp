@@ -4,9 +4,9 @@
 
 #include "StateManager.h"
 
-StateManager::StateManager(Pycron *pycron) : m_pycron(pycron){
-    m_gameState = new GameState(m_pycron->m_vm);
-    m_editorState = new EditorState(m_pycron->m_vm);
+StateManager::StateManager(Pycron *pycron, Graphics *graphics) : m_pycron(pycron){
+    m_gameState = new GameState(m_pycron->m_vm, graphics);
+    m_editorState = new EditorState(m_pycron->m_vm, graphics);
     m_currentState = nullptr;
     RequestStateChange(GAME);
 }
@@ -14,6 +14,8 @@ StateManager::StateManager(Pycron *pycron) : m_pycron(pycron){
 StateManager::~StateManager() {
     m_currentState = nullptr;
     delete m_gameState;
+    delete m_editorState;
+    delete m_graphics;
 }
 
 
@@ -40,7 +42,7 @@ void StateManager::RequestStateChange(StateManager::StateType state) {
     }
 }
 
-void StateManager::Draw(Graphics *graphics) {
+void StateManager::Draw() {
 
     if(IsKeyPressed(KEY_ENTER)){
         if(m_currentState == m_gameState){
@@ -56,11 +58,11 @@ void StateManager::Draw(Graphics *graphics) {
                 m_pycron->m_graphics->Text(m_gameState->m_previousError, 2, 2, 59);
             }
             else{
-                m_currentState->Draw(graphics);
+                m_currentState->Draw();
             }
         }
         else{
-            m_currentState->Draw(graphics);
+            m_currentState->Draw();
         }
     }
 }

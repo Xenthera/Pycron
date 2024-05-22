@@ -1,7 +1,6 @@
 #pragma once
 #include "raylib.h"
 #include "pocketpy/vm.h"
-#include "Font.h"
 
 #include <algorithm>
 #include <vector>
@@ -10,6 +9,8 @@
 
 
 class StateManager;
+class PycronImage;
+class PixelFont;
 
 class Graphics {
 
@@ -46,17 +47,17 @@ public:
 
     std::unordered_map<unsigned int, unsigned int> m_paletteByID;    // <id, hex color>
 
-
-
 public:
+
     Graphics(int screenWidth, int screenHeight, int startupScale);
     ~Graphics();
 
     void draw(StateManager* stateManager);
     int rgbToID(int r, int g, int b);
 
-
     void copyBufferToGPU();
+
+    PycronImage* loadImage(std::string path);
 
     void updateVMVars(pkpy::VM* vm);
 
@@ -76,7 +77,7 @@ public:
     void RectBorder(int x, int y, int width, int height, int paletteIndex);
     void Text(const std::string& s, int x, int y, int paletteIndex);
     void Triangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int paletteIndex);
-
+    void Img(PycronImage* img, int x, int y);
     int GetPixel(int x, int y);
 
 

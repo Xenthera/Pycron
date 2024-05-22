@@ -9,9 +9,9 @@ public:
     std::string m_previousError;
     bool m_errorThrown = false;
 
-    GameState(pkpy::VM* vm);
+    GameState(pkpy::VM* vm, Graphics* graphics);
 
-    void Draw(Graphics* graphics) override;
+    void Draw() override;
     void OnEnter() override;
     void OnExit() override;
     void onKeyPressed(int key) override;
@@ -20,7 +20,7 @@ private:
 
     pkpy::VM* m_vm;
     pkpy::PyObject* m_updateFunction;
-
+    Graphics* m_graphics;
 
     std::unordered_map<std::string, std::string> readPythonFiles(const std::string& dir);
     void loadPythonModules(std::unordered_map<std::string, std::string>& fileContents);

@@ -3,10 +3,15 @@
 //
 
 #include "Graphics.h"
+#include "PycronImage.h"
+#include "Font.h"
 #include "../Utilities.h"
-#include <raymath.h>
 #include "../StateManager.h"
+
 #include <fstream>
+#include <raymath.h>
+
+
 
 
 Graphics::Graphics(int screenWidth, int screenHeight, int startupScale) : m_screenWidth(screenWidth), m_screenHeight(screenHeight){
@@ -51,7 +56,7 @@ void Graphics::draw(StateManager* stateManager) {
         calculateScreenPositionInWindow();
     }
 
-    stateManager->Draw(this);
+    stateManager->Draw();
     copyBufferToGPU();
     renderVirtualScreen();
 }
@@ -538,6 +543,30 @@ void Graphics::Triangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t 
     }
 
 
+}
+
+PycronImage* Graphics::loadImage(std::string path) {
+    Image img = LoadImage(path.c_str());
+    ImageRotateCW(&img);
+    ImageFlipHorizontal(&img);
+    if(img.width == 0 && img.height == 0) std::cerr << "Image at path " << path << " is empty\n";
+    Color* colors = LoadImageColors(img);
+    auto* idImg = new PycronImage(img.width, img.height);
+    for (int i = 0; i < idImg->data.size(); ++i) {
+        if(colors[i].a == 0){
+            idImg->data[i] = -1;
+        }else{
+            idImg->data[i] = (int8_t)rgbToID(colors[i].r, colors[i].g, colors[i].b);
+        }
+    }
+    return idImg;
+}
+
+void Graphics::Img(PycronImage* img, int x, int y) {
+    for (int i = 0; i < img->data.size(); ++i) {
+        if(img->data[i] == -1) continue;
+        Pixel(x + i / img->width, y + i % img->width, img->data[i]);
+    }
 }
 
 

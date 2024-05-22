@@ -32,7 +32,7 @@ Pycron::Pycron() {
     m_graphics->loadPalette("resources/thecosmos.hex");
     m_graphics->bindMethods(m_vm);
     m_graphics->updateVMVars(m_vm);
-    m_stateManager = new StateManager(this);
+    m_stateManager = new StateManager(this, m_graphics);
 
 
 

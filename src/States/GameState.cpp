@@ -8,12 +8,12 @@
 #include <filesystem>
 #include "../Pycron.h"
 
-GameState::GameState(pkpy::VM* vm) :m_vm(vm){
+GameState::GameState(pkpy::VM* vm, Graphics* graphics) :m_vm(vm), m_graphics(graphics){
     m_updateFunction = nullptr;
     m_previousError = "";
 }
 
-void GameState::Draw(Graphics *graphics) {
+void GameState::Draw() {
         try{
             if(m_updateFunction != nullptr){
                 m_vm->call(m_updateFunction);

@@ -22,10 +22,11 @@ private:
     Pycron* m_pycron;
     GameState* m_gameState;
     EditorState* m_editorState;
+    Graphics* m_graphics;
 
 
 public:
-    explicit StateManager(Pycron* pycron);
+    explicit StateManager(Pycron* pycron, Graphics* graphics);
     ~StateManager();
 
     void RequestStateChange(StateType state);
@@ -34,7 +35,7 @@ public:
     void RequestRunGame();
     void RequestStopGame();
 
-    void Draw(Graphics* graphics);
+    void Draw();
 
 };
 

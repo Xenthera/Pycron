@@ -8,7 +8,7 @@ protected:
     State(){}
 public:
     virtual ~State() = default;
-    virtual void Draw(Graphics* graphics) = 0;
+    virtual void Draw() = 0;
     virtual void OnEnter() = 0;
     virtual void OnExit() = 0;
     virtual void onKeyPressed(int key) = 0;
