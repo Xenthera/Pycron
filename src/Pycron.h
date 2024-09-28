@@ -1,5 +1,7 @@
 #pragma once
 #include <algorithm>
+#include <fstream>
+#include <sstream>
 #include "pocketpy.h"
 #include "StateManager.h"
 #include "Graphics/Graphics.h"
@@ -37,5 +39,7 @@ public:
     static pkpy::PyObject* getKeyDown(pkpy::VM* vm, pkpy::ArgsView args);
     static pkpy::PyObject* getMousePressed(pkpy::VM* vm, pkpy::ArgsView args);
     static pkpy::PyObject* getMouseDown(pkpy::VM* vm, pkpy::ArgsView args);
+
+    static std::string loadFileToString(const std::string& filename);
 };
 

@@ -42,10 +42,12 @@ add_executable(Pycron src/main.cpp
         src/States/GameState.h
         src/Graphics/Font.cpp
         src/Graphics/Font.h
-        src/States/EditorState.cpp
-        src/States/EditorState.h
+        src/States/Editor/EditorState.cpp
+        src/States/Editor/EditorState.h
         src/Graphics/PycronImage.h
-        src/Graphics/PycronImage.cpp)
+        src/Graphics/PycronImage.cpp
+        src/States/Editor/PythonTokenizer.cpp
+        src/States/Editor/PythonTokenizer.h)
 
 add_subdirectory(dependencies/pocketpy)
 # Declaring our executable

@@ -1,8 +1,7 @@
 //
 // Created by Bobby Lucero on 4/20/24.
 //
-#include <fstream>
-#include <sstream>
+
 #include <random>
 #include <cmath>
 #include "Pycron.h"
@@ -11,17 +10,7 @@
 
 std::string Pycron::PythonDirectory = "./python";
 
-std::string loadFileToString(const std::string& filename) {
-    std::ifstream file(filename); // Open the file
-    std::stringstream buffer; // String stream to hold file content
-    if (file.is_open()) { // Check if file is open
-        buffer << file.rdbuf(); // Read the entire file into the buffer
-        file.close(); // Close the file
-    } else {
-        std::cerr << "Unable to open file: " << filename << std::endl;
-    }
-    return buffer.str(); // Return the content string
-}
+
 
 Pycron::Pycron() {
     SetTraceLogLevel(LOG_ERROR);
@@ -151,5 +140,17 @@ pkpy::PyObject *Pycron::getMousePressed(pkpy::VM *vm, pkpy::ArgsView args) {
 pkpy::PyObject *Pycron::getMouseDown(pkpy::VM *vm, pkpy::ArgsView args) {
     bool held = IsMouseButtonDown(pkpy::py_cast<int>(vm, args[0]));
     return pkpy::py_var(vm, held);
+}
+
+std::string Pycron::loadFileToString(const std::string &filename) {
+    std::ifstream file(filename); // Open the file
+    std::stringstream buffer; // String stream to hold file content
+    if (file.is_open()) { // Check if file is open
+        buffer << file.rdbuf(); // Read the entire file into the buffer
+        file.close(); // Close the file
+    } else {
+        std::cerr << "Unable to open file: " << filename << std::endl;
+    }
+    return buffer.str(); // Return the content string
 }
 

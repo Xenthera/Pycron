@@ -3,7 +3,7 @@
 #include "Pycron.h"
 #include "Graphics/Graphics.h"
 #include "States/GameState.h"
-#include "States/EditorState.h"
+#include "States/Editor/EditorState.h"
 
 class Pycron;
 class Graphics;
@@ -29,7 +29,7 @@ public:
     explicit StateManager(Pycron* pycron, Graphics* graphics);
     ~StateManager();
 
-    void RequestStateChange(StateType state);
+    void ChangeState(StateManager::StateType state);
 
     void RequestLoadGame();
     void RequestRunGame();

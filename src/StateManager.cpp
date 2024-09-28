@@ -8,7 +8,7 @@ StateManager::StateManager(Pycron *pycron, Graphics *graphics) : m_pycron(pycron
     m_gameState = new GameState(m_pycron->m_vm, graphics);
     m_editorState = new EditorState(m_pycron->m_vm, graphics);
     m_currentState = nullptr;
-    RequestStateChange(GAME);
+    ChangeState(EDITOR);
 }
 
 StateManager::~StateManager() {
@@ -19,7 +19,7 @@ StateManager::~StateManager() {
 }
 
 
-void StateManager::RequestStateChange(StateManager::StateType state) {
+void StateManager::ChangeState(StateManager::StateType state) {
     if(m_currentState){
         m_currentState->OnExit();
     }
@@ -46,9 +46,9 @@ void StateManager::Draw() {
 
     if(IsKeyPressed(KEY_ENTER)){
         if(m_currentState == m_gameState){
-            RequestStateChange(EDITOR);
+            ChangeState(EDITOR);
         }else{
-            RequestStateChange(GAME);
+            ChangeState(GAME);
         }
     }
 

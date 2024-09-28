@@ -74,7 +74,7 @@ void Graphics::renderVirtualScreen() {
     BeginDrawing();
         ClearBackground(BLACK);
         DrawTexturePro(m_virtualScreen.texture, m_virtualScreenLocalBounds, m_virtualScreenWindowBounds, m_origin, 0.0f, WHITE);
-        //DrawText(std::to_string(GetFPS()).c_str(), 10, 10, 30, YELLOW);
+        DrawText(std::to_string(GetFPS()).c_str(), 10, 10, 30, YELLOW);
 
     EndDrawing();
 }
