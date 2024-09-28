@@ -74,7 +74,7 @@ void Graphics::renderVirtualScreen() {
     BeginDrawing();
         ClearBackground(BLACK);
         DrawTexturePro(m_virtualScreen.texture, m_virtualScreenLocalBounds, m_virtualScreenWindowBounds, m_origin, 0.0f, WHITE);
-        DrawText(std::to_string(GetFPS()).c_str(), 10, 10, 30, YELLOW);
+        //DrawText(std::to_string(GetFPS()).c_str(), 10, 10, 30, YELLOW);
 
     EndDrawing();
 }
@@ -358,14 +358,21 @@ void Graphics::Text(const std::string& s, int x, int y, int paletteIndex) {
     for (int i = 0; i < s.size(); ++i) {
         char c = s[i];
         std::string bitData = m_currentFont->GetCharData((int)c);
-
-        //std::cout << c << ": " << (int)c << " = " << bitData << std::endl;
         for (int j = 0; j < bitData.size(); ++j) {
             if(bitData[j] == '1')
                 Pixel(x + (j % m_currentFont->GetWidth()) + ((m_currentFont->GetWidth() + 1) * i), y + (j / m_currentFont->GetWidth()), paletteIndex);
 
         }
     }
+}
+
+void Graphics::Char(char c, int x, int y, int paletteIndex) {
+        std::string bitData = m_currentFont->GetCharData((int)c);
+        for (int j = 0; j < bitData.size(); ++j) {
+            if(bitData[j] == '1')
+                Pixel(x + (j % m_currentFont->GetWidth()), y + (j / m_currentFont->GetWidth()), paletteIndex);
+
+        }
 }
 
 void Graphics::updateVMVars(pkpy::VM* vm) {
@@ -569,7 +576,12 @@ void Graphics::Img(PycronImage* img, int x, int y) {
     }
 }
 
-
+int Graphics::GetCurrentFontWidth(){
+    return m_currentFont->GetWidth();
+}
+int Graphics::GetCurrentFontHeight(){
+    return m_currentFont->GetHeight();
+}
 
 
 

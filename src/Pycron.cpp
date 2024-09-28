@@ -109,8 +109,8 @@ pkpy::PyObject* Pycron::getRandomNumber(pkpy::VM* vm, pkpy::ArgsView args) {
     float min = pkpy::py_cast<float>(vm, args[0]);
     float max = pkpy::py_cast<float>(vm, args[1]);
     // Seed the random number generator with a random device
-    std::random_device rd;
-    std::mt19937 gen(rd());
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
 
     // Define a uniform distribution for the range [min, max]
     std::uniform_real_distribution<float> distribution(min, max);

@@ -22,14 +22,14 @@ private:
     int m_windowWidth;
     int m_windowHeight;
 
-    Rectangle m_virtualScreenWindowBounds; // size of rect texture on window
-    Vector2 m_origin; // position of rect texture on window
-    Rectangle m_virtualScreenLocalBounds; // virtual screen bounds
-    RenderTexture2D m_virtualScreen;
+    Rectangle            m_virtualScreenWindowBounds; // size of rect texture on window
+    Vector2              m_origin;                    // position of rect texture on window
+    Rectangle            m_virtualScreenLocalBounds;  // virtual screen bounds
+    RenderTexture2D      m_virtualScreen;
     std::vector<uint8_t> m_virtualScreenColorBuffer;
-    Image m_virtualScreenImageBuffer;
-    PixelFont* m_currentFont;
-    PixelFont* m_NormalFont;
+    Image                m_virtualScreenImageBuffer;
+    PixelFont*           m_currentFont;
+    PixelFont*           m_NormalFont;
 
 private:
     void renderVirtualScreen();
@@ -76,9 +76,13 @@ public:
     void Rect(int x, int y, int width, int height, int paletteIndex);
     void RectBorder(int x, int y, int width, int height, int paletteIndex);
     void Text(const std::string& s, int x, int y, int paletteIndex);
+    void Char(char c, int x, int y, int paletteIndex);
     void Triangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int paletteIndex);
     void Img(PycronImage* img, int x, int y);
     int GetPixel(int x, int y);
+
+    int GetCurrentFontWidth();
+    int GetCurrentFontHeight();
 
 
 };

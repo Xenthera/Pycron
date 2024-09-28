@@ -14,7 +14,9 @@ public:
     void Draw() override;
     void OnEnter() override;
     void OnExit() override;
-    void onKeyPressed(int key) override;
+    void OnKeyPressed(int key) override;
+    void OnCharPressed(char character) override;
+
 
 private:
 

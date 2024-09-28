@@ -34,7 +34,7 @@ void GameState::OnExit() {
     m_updateFunction = m_vm->None;
 }
 
-void GameState::onKeyPressed(int key) {
+void GameState::OnKeyPressed(int key) {
 
 }
 
@@ -96,5 +96,9 @@ void GameState::loadPythonModules(std::unordered_map<std::string, std::string> &
             std::cout << e.summary() << std::endl;
         }
     }
+}
+
+void GameState::OnCharPressed(char character) {
+
 }
 

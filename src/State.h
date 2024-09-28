@@ -11,5 +11,7 @@ public:
     virtual void Draw() = 0;
     virtual void OnEnter() = 0;
     virtual void OnExit() = 0;
-    virtual void onKeyPressed(int key) = 0;
+    virtual void OnKeyPressed(int key) = 0;
+    virtual void OnCharPressed(char character) = 0;
+
 };
