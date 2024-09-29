@@ -15,7 +15,7 @@ EditorState::EditorState(pkpy::VM *vm, Graphics *graphics) : m_vm(vm), m_graphic
 
     Token a(TokenType::Keyword, "Test");
 
-    std::string randomSource = Pycron::loadFileToString("../python/main.py");
+    std::string randomSource = Pycron::loadFileToString("../python/syntaxTest.py");
 
     m_baseBackgroundColor = 56;
     m_baseTextColor = 63;
