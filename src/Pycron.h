@@ -31,6 +31,8 @@ public:
     void StartGameLoop();
     void bindMethods();
 
+    static std::string loadFileToString(const std::string& filename);
+
     static pkpy::PyObject* getRandomNumber(pkpy::VM* vm, pkpy::ArgsView args);
     static pkpy::PyObject* getSin(pkpy::VM* vm, pkpy::ArgsView args);
     static pkpy::PyObject* getCos(pkpy::VM* vm, pkpy::ArgsView args);
@@ -39,7 +41,5 @@ public:
     static pkpy::PyObject* getKeyDown(pkpy::VM* vm, pkpy::ArgsView args);
     static pkpy::PyObject* getMousePressed(pkpy::VM* vm, pkpy::ArgsView args);
     static pkpy::PyObject* getMouseDown(pkpy::VM* vm, pkpy::ArgsView args);
-
-    static std::string loadFileToString(const std::string& filename);
 };
 

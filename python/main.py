@@ -2,6 +2,7 @@ from scene import Scene
 from particles import Particles
 from triangles import Triangles
 
+# Palette class (inherits from scene)
 class Palette(Scene):
 
     def __init__(self):

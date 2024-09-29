@@ -17,14 +17,24 @@ EditorState::EditorState(pkpy::VM *vm, Graphics *graphics) : m_vm(vm), m_graphic
 
     std::string randomSource = Pycron::loadFileToString("../python/main.py");
 
-    m_baseBackgroundColor = 59;
-    m_baseTextColor = 51;
-    m_lineNumberBackgroundColor = 58;
-    m_lineNumberTextColor  = 61;
+    m_baseBackgroundColor = 56;
+    m_baseTextColor = 63;
+    m_lineNumberBackgroundColor = 57;
+    m_lineNumberTextColor  = 6;
+    m_unknownTextColor  = 4;
+    m_identifierTextColor  = 43;
+    m_keywordTextColor  = 31;
+    m_builtinTextColor  = 23;
+    m_numericalLiteralTextColor = 32;
+    m_stringLiteralTextColor = 6;
+    m_punctuationTextColor = 52;
+    m_operatorTextColor = 45;
+    m_commentTextColor = 60;
 
-    m_topLetterSpacing = 1;
+
+    m_topLetterSpacing = 0;
     m_bottomLetterSpacing = 1;
-    m_leftLetterSpacing = 1;
+    m_leftLetterSpacing = 0;
     m_rightLetterSpacing = 1;
 
     m_charWidth = m_leftLetterSpacing + m_graphics->GetCurrentFontWidth() + m_rightLetterSpacing; // Final size of char with spacing. If the literal width of the font is n, the final width is n + spacing.
@@ -37,12 +47,13 @@ EditorState::EditorState(pkpy::VM *vm, Graphics *graphics) : m_vm(vm), m_graphic
     m_foregroundIndexBuffer = std::vector<uint8_t>(m_textWidth * m_textHeight);
     m_backgroundIndexBuffer = std::vector<uint8_t>(m_textWidth * m_textHeight);
 
+    m_dirtyFlags = std::vector<bool>(m_textHeight);
+
     Clear();
 
-
-    std::string testText = "This is a test\n[Test]\nThis is the end of the test.";
-
     LoadStringToBuffer(randomSource);
+
+    auto tokens = m_pythonTokenizer->tokenizeLine("for i in range(100):");
 
 }
 
@@ -52,13 +63,14 @@ EditorState::~EditorState() {
 
 void EditorState::Draw() {
     m_graphics->Clear(0);
-    
+
+    int bg = 28;
 
     for (int i = 0; i < m_characterBuffer.size(); ++i) {
         int x = (i % m_textWidth) * m_charWidth;
         int y = (i / m_textWidth) * m_charHeight;
         m_graphics->Rect(x, y, m_charWidth, m_charHeight, m_backgroundIndexBuffer[i]);
-        m_graphics->Char(m_characterBuffer[i], x + m_leftLetterSpacing + 1, y + m_topLetterSpacing + 1, 0);
+        m_graphics->Char(m_characterBuffer[i], x + m_leftLetterSpacing + 1, y + m_topLetterSpacing + 1, bg);
         m_graphics->Char(m_characterBuffer[i], x + m_leftLetterSpacing, y + m_topLetterSpacing, m_foregroundIndexBuffer[i]);
     }
 
@@ -66,12 +78,42 @@ void EditorState::Draw() {
         Clear();
         m_dirty = false;
         for (int i = 0; i < m_text.size(); ++i) {
+            // Line numbers TODO: maybe not have this as part of the buffer, instead as a custom bar. (Allows for more custom functionality such as bookmarks)
             std::string lineNumber = std::to_string(i);
             int size = 2;
             int diff = size - (int)lineNumber.size();
             if(diff > 0) lineNumber = std::string(diff, ' ') + lineNumber;
             Text(lineNumber, 0, i, m_lineNumberTextColor, m_lineNumberBackgroundColor);
-            Text(m_text[i], size, i, m_baseTextColor, m_baseBackgroundColor);
+
+            // Text handling
+            auto tokens = m_pythonTokenizer->tokenizeLine(m_text[i]);
+
+            int currentPos = 0;
+            for (int j = 0; j < tokens.size(); ++j) {
+                int color = m_baseTextColor;
+                TokenType type = tokens[j].type;
+                if(type == TokenType::Identifier){
+                    color = m_identifierTextColor;
+                }else if(type == TokenType::Keyword){
+                    color = m_keywordTextColor;
+                }else if(type == TokenType::Builtin){
+                    color = m_builtinTextColor;
+                }else if(type == TokenType::NumericalLiteral){
+                    color = m_numericalLiteralTextColor;
+                }else if(type == TokenType::StringLiteral){
+                    color = m_stringLiteralTextColor;
+                }else if(type == TokenType::Punctuation){
+                    color = m_punctuationTextColor;
+                }else if(type == TokenType::Operator){
+                    color = m_operatorTextColor;
+                }else if(type == TokenType::Comment){
+                    color = m_commentTextColor;
+                }else if(type == TokenType::Unknown){
+                    color = m_baseTextColor;
+                }
+                Text(tokens[j].value, size + currentPos, i, color, m_baseBackgroundColor);
+                currentPos += tokens[j].value.size();
+            }
         }
     }
 

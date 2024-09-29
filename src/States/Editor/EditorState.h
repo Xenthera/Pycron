@@ -34,12 +34,23 @@ private:
 
     // Text Data
     std::vector<std::string> m_text;
+    std::vector<bool> m_dirtyFlags;
 
     // Theming
     uint8_t m_baseBackgroundColor;
     uint8_t m_baseTextColor;
     uint8_t m_lineNumberBackgroundColor;
     uint8_t m_lineNumberTextColor;
+    uint8_t m_unknownTextColor;
+    uint8_t m_identifierTextColor;
+    uint8_t m_keywordTextColor;
+    uint8_t m_builtinTextColor;
+    uint8_t m_numericalLiteralTextColor;
+    uint8_t m_stringLiteralTextColor;
+    uint8_t m_punctuationTextColor;
+    uint8_t m_operatorTextColor;
+    uint8_t m_commentTextColor;
+
 
     bool m_dirty;
 
