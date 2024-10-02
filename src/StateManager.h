@@ -31,6 +31,9 @@ public:
 
     void ChangeState(StateManager::StateType state);
 
+    void OnKeyPressed(int key);
+    void OnCharPressed(char c);
+
     void RequestLoadGame();
     void RequestRunGame();
     void RequestStopGame();

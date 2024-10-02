@@ -247,6 +247,41 @@ void Graphics::Pixel(int x, int y, int paletteIndex) {
     m_virtualScreenColorBuffer[y * m_screenWidth + x] = paletteIndex;
 }
 
+void Graphics::Line(int x0, int y0, int x1, int y1, int paletteIndex) {
+    int dx = x1 - x0; // Change in x
+    int dy = y1 - y0; // Change in y
+    int abs_dx = std::abs(dx);
+    int abs_dy = std::abs(dy);
+
+    int sx = (dx > 0) ? 1 : -1; // Step direction in x
+    int sy = (dy > 0) ? 1 : -1; // Step direction in y
+
+    // Choose the primary axis for iteration
+    if (abs_dx > abs_dy) {
+        int err = abs_dx / 2; // Error value
+        for (int i = 0; i <= abs_dx; i++) {
+            Pixel(x0, y0, paletteIndex); // Plot the pixel
+            err -= abs_dy; // Update error term
+            if (err < 0) {
+                y0 += sy; // Move in y direction
+                err += abs_dx; // Update error term
+            }
+            x0 += sx; // Always move in x direction
+        }
+    } else {
+        int err = abs_dy / 2; // Error value
+        for (int i = 0; i <= abs_dy; i++) {
+            Pixel(x0, y0, paletteIndex); // Plot the pixel
+            err -= abs_dx; // Update error term
+            if (err < 0) {
+                x0 += sx; // Move in x direction
+                err += abs_dy; // Update error term
+            }
+            y0 += sy; // Always move in y direction
+        }
+    }
+}
+
 void Graphics::Circle(int x, int y, int radius, int paletteIndex) {
     Ellipse(x, y, radius, radius, paletteIndex);
 }

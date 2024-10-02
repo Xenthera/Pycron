@@ -45,6 +45,19 @@ void Pycron::StartGameLoop() {
         }
         m_graphics->updateVMVars(m_vm);
         m_graphics->draw(this->m_stateManager);
+
+        char c = (char)GetCharPressed();
+
+        while(c > 0){
+            m_stateManager->OnCharPressed(c);
+            c = (char)GetCharPressed();
+        }
+
+        for (int key = KeyboardKey::KEY_BACK; key < KeyboardKey::KEY_KP_EQUAL; ++key) {
+            if(IsKeyPressed(key) || IsKeyPressedRepeat(key)){
+                m_stateManager->OnKeyPressed(key);
+            }
+        }
     }
 }
 

@@ -67,3 +67,11 @@ void StateManager::Draw() {
     }
 }
 
+void StateManager::OnKeyPressed(int key) {
+    m_currentState->OnKeyPressed(key);
+}
+
+void StateManager::OnCharPressed(char c) {
+    m_currentState->OnCharPressed(c);
+}
+

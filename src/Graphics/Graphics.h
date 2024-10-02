@@ -70,6 +70,7 @@ public:
 
     void Clear(int paletteIndex);
     void Pixel(int x, int y, int paletteIndex);
+    void Line(int x0, int y0, int x1, int y1, int paletteIndex);
     void Circle(int x, int y, int radius, int paletteIndex);
     void Ellipse(int x, int y, int width, int height, int paletteIndex);
     void EllipseBorder(int x, int y, int width, int height, int paletteIndex);

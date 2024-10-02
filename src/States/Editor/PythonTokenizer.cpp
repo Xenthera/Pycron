@@ -117,7 +117,7 @@ bool PythonTokenizer::isPunctuation(char c) {
 }
 
 bool PythonTokenizer::isOperator(char c) {
-    return c == '+' || c == '-' || c == '*' || c == '/' || c == '=' || c == '<' || c == '>' || c == '!';
+    return c == '+' || c == '-' || c == '*' || c == '/' || c == '=' || c == '<' || c == '>' || c == '!' || c == ':';
 }
 
 std::string PythonTokenizer::readNumericLiteral(const std::string &line) {
@@ -165,8 +165,6 @@ std::string PythonTokenizer::readStringLiteral(const std::string &line) {
     m_currentPos++;
     while (m_currentPos < line.length() && line[m_currentPos] != '"') {
         m_currentPos++;
-        std::cout << m_currentPos;
-
     }
 
     if(line[m_currentPos] == '"') m_currentPos++;
