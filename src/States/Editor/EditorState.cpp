@@ -4,7 +4,7 @@
 
 #include <vector>
 #include <string>
-
+#include <algorithm>
 #include "EditorState.h"
 #include "../../Graphics/PycronImage.h"
 #include "../../Pycron.h"
@@ -16,7 +16,7 @@ EditorState::EditorState(pkpy::VM *vm, Graphics *graphics) : m_vm(vm), m_graphic
 
     Token a(TokenType::Keyword, "Test");
 
-    std::string randomSource = Pycron::loadFileToString("../python/main.py");
+    std::string randomSource = Pycron::loadFileToString("../python/triangles.py");
 
     m_baseBackgroundColor = 56;
     m_shadowColor = 28;
@@ -41,6 +41,9 @@ EditorState::EditorState(pkpy::VM *vm, Graphics *graphics) : m_vm(vm), m_graphic
     m_cursorX = 0;
     m_cursorY = 0;
 
+    m_scrollX = 0;
+    m_scrollY = 0;
+
     m_cursorBlinkTimer = 0;
     m_cursorBlinkInterval = 0.5;
 
@@ -62,8 +65,6 @@ EditorState::EditorState(pkpy::VM *vm, Graphics *graphics) : m_vm(vm), m_graphic
 
     LoadStringToBuffer(randomSource);
 
-    auto tokens = m_pythonTokenizer->tokenizeLine("for i in range(100):");
-
 }
 
 EditorState::~EditorState() {
@@ -76,18 +77,24 @@ void EditorState::Draw() {
     if(m_dirty){
         Clear();
         m_dirty = false;
-        for (int i = 0; i < m_text.size(); ++i) {
+        for (int i = 0; i < m_height; ++i) {
+
+           // if(i > m_text.size() - 1) break;
             // Line numbers TODO: maybe not have this as part of the buffer, instead as a custom bar. (Allows for more custom functionality such as bookmarks)
 //            std::string lineNumber = std::to_string(std::abs(m_cursorY - i));
 //            if(i == m_cursorY) lineNumber = std::to_string(m_cursorY);
-            std::string lineNumber = std::to_string(i);
+            int index = i + m_scrollY;
+
+            if(index > m_text.size() - 1) break;
+
+            std::string lineNumber = std::to_string(index);
             int size = 2;
             int diff = size - (int)lineNumber.size();
             if(diff > 0) lineNumber = std::string(diff, ' ') + lineNumber;
             Text(lineNumber, 0, i, i == m_cursorY ? m_lineNumberTextColor : m_commentTextColor, m_lineNumberBackgroundColor);
 
             // Text handling
-            auto tokens = m_pythonTokenizer->tokenizeLine(m_text[i]);
+            auto tokens = m_pythonTokenizer->tokenizeLine(m_text[index]);
 
             int currentPos = 0;
             for (int j = 0; j < tokens.size(); ++j) {
@@ -166,12 +173,33 @@ void EditorState::OnKeyPressed(int key) {
     if(key == KEY_RIGHT && m_cursorX < m_width - 1 - 2){
         m_cursorX++;
     }
-    if(key == KEY_UP && m_cursorY > 0){
-        m_cursorY--;
+    if(key == KEY_UP){
+        if( m_cursorY > 0)
+        {
+            m_cursorY--;
+        }
+        else
+        {
+            if(m_scrollY > 0)
+            {
+                m_scrollY--;
+            }
+        }
     }
-    if(key == KEY_DOWN && m_cursorY < m_height - 1){
-        m_cursorY++;
+
+    if(key == KEY_DOWN )
+    {
+        if(m_cursorY < std::min(m_height - 1, static_cast<int>(m_text.size()) - 1))
+        {
+            m_cursorY++;
+        }
+        else
+        {
+            if(m_scrollY + m_height < m_text.size())
+                m_scrollY++;
+        }
     }
+
 
     m_cursorVisible = true;
     m_cursorBlinkTimer = 0;

@@ -62,6 +62,9 @@ private:
     float_t m_cursorBlinkTimer;
     float_t m_cursorBlinkInterval;
 
+    int m_scrollX;
+    int m_scrollY;
+
     bool m_dirty;
 
     bool m_drawShadows;
