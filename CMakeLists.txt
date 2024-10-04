@@ -47,7 +47,9 @@ add_executable(Pycron src/main.cpp
         src/Graphics/PycronImage.h
         src/Graphics/PycronImage.cpp
         src/States/Editor/PythonTokenizer.cpp
-        src/States/Editor/PythonTokenizer.h)
+        src/States/Editor/PythonTokenizer.h
+        src/Graphics/Rectangle.cpp
+        src/Graphics/Rectangle.h)
 
 add_subdirectory(dependencies/pocketpy)
 # Declaring our executable

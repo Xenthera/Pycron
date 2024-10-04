@@ -3,7 +3,9 @@
 #include <regex>
 #include "PythonTokenizer.h"
 #include "../../State.h"
-
+#include "../../Graphics/PycronImage.h"
+#include "../../Pycron.h"
+#include "../../Graphics/Rectangle.h"
 
 class PycronImage;
 
@@ -23,6 +25,9 @@ private:
     pkpy::VM* m_vm;
     Graphics* m_graphics;
     PythonTokenizer* m_pythonTokenizer;
+
+    // Editor images
+    PycronImage* m_editorFrame;
 
     // Size of the character in pixels
     uint8_t m_charWidth, m_charHeight;
@@ -61,6 +66,15 @@ private:
     bool m_cursorVisible;
     float_t m_cursorBlinkTimer;
     float_t m_cursorBlinkInterval;
+
+
+    int m_textWindowXOffset;
+    int m_textWindowYOffset;
+
+    int m_textWindowWidth;
+    int m_textWindowHeight;
+
+    pycron::Rectangle* m_textBounds;
 
     int m_scrollX;
     int m_scrollY;

@@ -5,10 +5,9 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-#include "EditorState.h"
-#include "../../Graphics/PycronImage.h"
-#include "../../Pycron.h"
 #include <raylib.h>
+#include "EditorState.h"
+
 
 
 EditorState::EditorState(pkpy::VM *vm, Graphics *graphics) : m_vm(vm), m_graphics(graphics){
@@ -17,6 +16,8 @@ EditorState::EditorState(pkpy::VM *vm, Graphics *graphics) : m_vm(vm), m_graphic
     Token a(TokenType::Keyword, "Test");
 
     std::string randomSource = Pycron::loadFileToString("../python/triangles.py");
+
+    m_editorFrame = m_graphics->loadImage("../resources/EditorFrame.png");
 
     m_baseBackgroundColor = 56;
     m_shadowColor = 28;
@@ -41,17 +42,31 @@ EditorState::EditorState(pkpy::VM *vm, Graphics *graphics) : m_vm(vm), m_graphic
     m_cursorX = 0;
     m_cursorY = 0;
 
+    m_charWidth = m_leftLetterSpacing + m_graphics->GetCurrentFontWidth() + m_rightLetterSpacing; // Final size of char with spacing. If the literal width of the font is n, the final width is n + spacing.
+    m_charHeight = m_topLetterSpacing + m_graphics->GetCurrentFontHeight() + m_bottomLetterSpacing;
+
+    // Hardcoded text editor element positions based on interface graphics
+    m_textWindowXOffset = 26;
+    m_textWindowYOffset = 20;
+
+    m_textWindowWidth = 330;
+    m_textWindowHeight = 168;
+
+    m_textBounds = new pycron::Rectangle(m_textWindowXOffset, m_textWindowYOffset, m_textWindowWidth, m_textWindowHeight);
+
     m_scrollX = 0;
     m_scrollY = 0;
 
     m_cursorBlinkTimer = 0;
     m_cursorBlinkInterval = 0.5;
 
-    m_charWidth = m_leftLetterSpacing + m_graphics->GetCurrentFontWidth() + m_rightLetterSpacing; // Final size of char with spacing. If the literal width of the font is n, the final width is n + spacing.
-    m_charHeight = m_topLetterSpacing + m_graphics->GetCurrentFontHeight() + m_bottomLetterSpacing;
 
-    m_width = (int)(m_graphics->m_screenWidth / m_charWidth);
-    m_height = (int)(m_graphics->m_screenHeight / m_charHeight);
+
+    std::cout << (int)m_charWidth << "!\n";
+
+    m_width = (int)(m_textBounds->width / m_charWidth);
+    std::cout << m_textBounds->width << " : " << (int)m_charWidth << " = " << m_width;
+    m_height = (int)(m_textBounds->height / m_charHeight);
 
     m_characterBuffer = std::vector<char>(m_width * m_height);
     m_foregroundIndexBuffer = std::vector<uint8_t>(m_width * m_height);
@@ -69,10 +84,11 @@ EditorState::EditorState(pkpy::VM *vm, Graphics *graphics) : m_vm(vm), m_graphic
 
 EditorState::~EditorState() {
     delete m_pythonTokenizer;
+    delete m_editorFrame;
+    delete m_textBounds;
 }
 
 void EditorState::Draw() {
-
     // Set text and color buffers if needed
     if(m_dirty){
         Clear();
@@ -86,12 +102,6 @@ void EditorState::Draw() {
             int index = i + m_scrollY;
 
             if(index > m_text.size() - 1) break;
-
-            std::string lineNumber = std::to_string(index);
-            int size = 2;
-            int diff = size - (int)lineNumber.size();
-            if(diff > 0) lineNumber = std::string(diff, ' ') + lineNumber;
-            Text(lineNumber, 0, i, i == m_cursorY ? m_lineNumberTextColor : m_commentTextColor, m_lineNumberBackgroundColor);
 
             // Text handling
             auto tokens = m_pythonTokenizer->tokenizeLine(m_text[index]);
@@ -119,42 +129,47 @@ void EditorState::Draw() {
                 }else if(type == TokenType::Unknown){
                     color = m_baseTextColor;
                 }
-                Text(tokens[j].value, size + currentPos, i, color, m_baseBackgroundColor);
-                currentPos += tokens[j].value.size();
+                Text(tokens[j].value, currentPos, i, color, m_baseBackgroundColor);
+                currentPos += (int)tokens[j].value.size();
             }
         }
     }
 
-    m_graphics->Clear(0);
+    m_graphics->Clear(57);
 
     // draw text with info from color buffers
     for (int i = 0; i < m_characterBuffer.size(); ++i) {
-        int x = (i % m_width) * m_charWidth;
-        int y = (i / m_width) * m_charHeight;
+        int x = (i % m_width) * m_charWidth + m_textBounds->x;
+        int y = (i / m_width) * m_charHeight + m_textBounds->y;
         m_graphics->Rect(x, y, m_charWidth, m_charHeight, m_backgroundIndexBuffer[i]);
         if(m_drawShadows) m_graphics->Char(m_characterBuffer[i], x + m_leftLetterSpacing + 1, y + m_topLetterSpacing + 1, m_shadowColor);
         m_graphics->Char(m_characterBuffer[i], x + m_leftLetterSpacing, y + m_topLetterSpacing, m_foregroundIndexBuffer[i]);
     }
 
 
+    // Draw the cursor
     if(m_cursorVisible) {
-        int x = (m_cursorX + 2) * m_charWidth;
-        int y = m_cursorY * m_charHeight;
-        int index = m_cursorY * m_width + (m_cursorX + 2);
+        int x = m_cursorX * m_charWidth + m_textBounds->x;
+        int y = m_cursorY * m_charHeight + m_textBounds->y;
+        int index = m_cursorY * m_width + m_cursorX;
 
         if(m_drawShadows) m_graphics->Rect(x, y, m_charWidth + 1, m_charHeight + 1, m_shadowColor);
         m_graphics->Rect(x - 1, y - 1, m_charWidth + 1, m_charHeight + 1, m_foregroundIndexBuffer[index]);
-//        m_graphics->Line(x - 1, y, x - 1, y + m_charHeight - 1, 63);
         std::string s(1, m_characterBuffer[index]);
         m_graphics->Text(s, x, y, m_backgroundIndexBuffer[index]);
     }
 
-    // Cursor blink
+    // Cursor blink timer TODO: probably move to an update function
     m_cursorBlinkTimer += GetFrameTime();
     if(m_cursorBlinkTimer > m_cursorBlinkInterval){
         m_cursorVisible = !m_cursorVisible;
         m_cursorBlinkTimer = 0.0;
     }
+
+    // Editor frame image
+    m_graphics->Img(m_editorFrame, 0, 0);
+
+    //m_graphics->RectBorder(m_textBounds->x, m_textBounds->y, m_textBounds->width, m_textBounds->height, 23);
 
 }
 
@@ -170,7 +185,7 @@ void EditorState::OnKeyPressed(int key) {
     if(key == KEY_LEFT && m_cursorX > 0){
         m_cursorX--;
     }
-    if(key == KEY_RIGHT && m_cursorX < m_width - 1 - 2){
+    if(key == KEY_RIGHT && m_cursorX < m_width - 1){
         m_cursorX++;
     }
     if(key == KEY_UP){
