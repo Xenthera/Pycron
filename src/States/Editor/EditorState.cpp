@@ -13,9 +13,7 @@
 EditorState::EditorState(pkpy::VM *vm, Graphics *graphics) : m_vm(vm), m_graphics(graphics){
     m_pythonTokenizer = new PythonTokenizer();
 
-    Token a(TokenType::Keyword, "Test");
-
-    std::string randomSource = Pycron::loadFileToString("../python/triangles.py");
+    std::string randomSource = Pycron::loadFileToString("../python/main.py");
 
     m_editorFrame = m_graphics->loadImage("../resources/EditorFrame.png");
 
@@ -23,7 +21,7 @@ EditorState::EditorState(pkpy::VM *vm, Graphics *graphics) : m_vm(vm), m_graphic
     m_shadowColor = 28;
     m_baseTextColor = 42;
     m_lineNumberBackgroundColor = 57;
-    m_lineNumberTextColor  = 6;
+    m_lineNumberTextColor  = 7;
     m_unknownTextColor  = 4;
     m_identifierTextColor  = 63;
     m_keywordTextColor  = 31;
@@ -49,6 +47,9 @@ EditorState::EditorState(pkpy::VM *vm, Graphics *graphics) : m_vm(vm), m_graphic
     m_textWindowXOffset = 26;
     m_textWindowYOffset = 20;
 
+    m_lineNumberWindowXOffset = 3;
+    m_lineNumberWindowYOffset = 20;
+
     m_textWindowWidth = 330;
     m_textWindowHeight = 168;
 
@@ -60,12 +61,7 @@ EditorState::EditorState(pkpy::VM *vm, Graphics *graphics) : m_vm(vm), m_graphic
     m_cursorBlinkTimer = 0;
     m_cursorBlinkInterval = 0.5;
 
-
-
-    std::cout << (int)m_charWidth << "!\n";
-
     m_width = (int)(m_textBounds->width / m_charWidth);
-    std::cout << m_textBounds->width << " : " << (int)m_charWidth << " = " << m_width;
     m_height = (int)(m_textBounds->height / m_charHeight);
 
     m_characterBuffer = std::vector<char>(m_width * m_height);
@@ -95,10 +91,6 @@ void EditorState::Draw() {
         m_dirty = false;
         for (int i = 0; i < m_height; ++i) {
 
-           // if(i > m_text.size() - 1) break;
-            // Line numbers TODO: maybe not have this as part of the buffer, instead as a custom bar. (Allows for more custom functionality such as bookmarks)
-//            std::string lineNumber = std::to_string(std::abs(m_cursorY - i));
-//            if(i == m_cursorY) lineNumber = std::to_string(m_cursorY);
             int index = i + m_scrollY;
 
             if(index > m_text.size() - 1) break;
@@ -164,6 +156,15 @@ void EditorState::Draw() {
     if(m_cursorBlinkTimer > m_cursorBlinkInterval){
         m_cursorVisible = !m_cursorVisible;
         m_cursorBlinkTimer = 0.0;
+    }
+
+    // Line Numbers
+    for (int i = 0; i < m_height; ++i) {
+        std::string lineNumber = std::to_string(i + m_scrollY);
+        int delta = 3 - (int)lineNumber.size();
+        lineNumber = std::string(delta, ' ') + lineNumber;
+        int highlight = i == m_cursorY ? m_lineNumberTextColor : m_commentTextColor;
+        m_graphics->Text(lineNumber, m_lineNumberWindowXOffset, m_lineNumberWindowYOffset + (i * m_charHeight), highlight);
     }
 
     // Editor frame image

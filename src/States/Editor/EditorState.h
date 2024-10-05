@@ -71,6 +71,9 @@ private:
     int m_textWindowXOffset;
     int m_textWindowYOffset;
 
+    int m_lineNumberWindowXOffset;
+    int m_lineNumberWindowYOffset;
+
     int m_textWindowWidth;
     int m_textWindowHeight;
 
