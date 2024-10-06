@@ -242,8 +242,9 @@ void Graphics::Clear(int paletteIndex) {
 
 void Graphics::Pixel(int x, int y, int paletteIndex) {
     paletteIndex = Clamp(paletteIndex, 0, m_paletteByID.size() - 1);
+    x *= 2;
+    y *= 2;
     if(x < 0 || y < 0 || x >= m_screenWidth || y >= m_screenHeight) return;
-
     m_virtualScreenColorBuffer[y * m_screenWidth + x] = paletteIndex;
 }
 
