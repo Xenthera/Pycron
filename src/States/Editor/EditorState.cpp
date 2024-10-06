@@ -7,15 +7,19 @@
 #include <algorithm>
 #include <raylib.h>
 #include "EditorState.h"
+#include "../../Utilities.h"
 
 
 
 EditorState::EditorState(pkpy::VM *vm, Graphics *graphics) : m_vm(vm), m_graphics(graphics){
     m_pythonTokenizer = new PythonTokenizer();
 
-    std::string randomSource = Pycron::loadFileToString("../python/main.py");
+    std::string randomSource = Pycron::loadFileToString("../python/particles.py");
 
     m_editorFrame = m_graphics->loadImage("../resources/EditorFrame.png");
+    m_LineNumberDetailLeft = m_graphics->loadImage("../resources/LineNumberDetailLeft.png");
+    m_LineNumberDetailCenter = m_graphics->loadImage("../resources/LineNumberDetailCenter.png");
+    m_LineNumberDetailRight = m_graphics->loadImage("../resources/LineNumberDetailRight.png");
 
     m_baseBackgroundColor = 56;
     m_shadowColor = 28;
@@ -89,6 +93,9 @@ void EditorState::Draw() {
     if(m_dirty){
         Clear();
         m_dirty = false;
+
+        int cursorPos = m_scrollY + m_cursorY;
+
         for (int i = 0; i < m_height; ++i) {
 
             int index = i + m_scrollY;
@@ -99,6 +106,23 @@ void EditorState::Draw() {
             auto tokens = m_pythonTokenizer->tokenizeLine(m_text[index]);
 
             int currentPos = 0;
+            if(index == cursorPos){
+                std::string lineNumber = std::to_string(cursorPos);
+                int offset = std::max((int)lineNumber.size() - 3, 0);
+                bool collision = false;
+                for (int j = 0; j < offset; ++j) {
+                    if(m_text[index].size() < offset) break;
+                    if(m_text[index][j] != ' '){
+                        collision = true;
+                        break;
+                    }
+                }
+                if(!collision) offset = 0;
+                currentPos = offset;
+            }
+
+
+
             for (int j = 0; j < tokens.size(); ++j) {
                 int color = m_baseTextColor;
                 TokenType type = tokens[j].type;
@@ -141,9 +165,25 @@ void EditorState::Draw() {
 
     // Draw the cursor
     if(m_cursorVisible) {
-        int x = m_cursorX * m_charWidth + m_textBounds->x;
+        int currentLine = m_scrollY + m_cursorY;
+        std::string lineNumber = std::to_string(currentLine);
+        int offset = std::max((int)lineNumber.size() - 3, 0);
+
+        bool collision = false;
+        for (int i = 0; i < offset; ++i) {
+            if(m_text[currentLine].size() < offset) break;
+            if(m_text[currentLine][i] != ' '){
+                collision = true;
+                break;
+            }
+        }
+
+        if(!collision) offset = 0;
+
+        int x = (m_cursorX + offset) * m_charWidth + m_textBounds->x;
         int y = m_cursorY * m_charHeight + m_textBounds->y;
-        int index = m_cursorY * m_width + m_cursorX;
+
+        int index = m_cursorY * m_width + (m_cursorX + offset);
 
         if(m_drawShadows) m_graphics->Rect(x, y, m_charWidth + 1, m_charHeight + 1, m_shadowColor);
         m_graphics->Rect(x - 1, y - 1, m_charWidth + 1, m_charHeight + 1, m_foregroundIndexBuffer[index]);
@@ -157,18 +197,50 @@ void EditorState::Draw() {
         m_cursorVisible = !m_cursorVisible;
         m_cursorBlinkTimer = 0.0;
     }
+    // Editor frame image
+    m_graphics->Img(m_editorFrame, 0, 0);
 
     // Line Numbers
     for (int i = 0; i < m_height; ++i) {
-        std::string lineNumber = std::to_string(i + m_scrollY);
-        int delta = 3 - (int)lineNumber.size();
+        int lineNum = i + m_scrollY + 1;
+        std::string lineNumber = std::to_string(lineNum);
+        int delta = std::max(0, 3 - (int)lineNumber.size());
         lineNumber = std::string(delta, ' ') + lineNumber;
+        lineNumber = lineNumber.substr(lineNumber.size() - 3);
+
         int highlight = i == m_cursorY ? m_lineNumberTextColor : m_commentTextColor;
+
+        if(lineNum > 999){
+            lineNumber[0] = ' ';
+            int dotX = m_lineNumberWindowXOffset;
+            int dotY = m_lineNumberWindowYOffset + (i * m_charHeight) + m_graphics->GetCurrentFontHeight() - 1;
+            m_graphics->Pixel(dotX, dotY, highlight);
+            m_graphics->Pixel(dotX + 2, dotY, highlight);
+            m_graphics->Pixel(dotX + 4, dotY, highlight);
+        }
+
         m_graphics->Text(lineNumber, m_lineNumberWindowXOffset, m_lineNumberWindowYOffset + (i * m_charHeight), highlight);
     }
 
-    // Editor frame image
-    m_graphics->Img(m_editorFrame, 0, 0);
+    // Line Number Detail
+    if(m_scrollY + 1 + m_cursorY > 999){
+        int lineNum = m_scrollY + 1 + m_cursorY;
+        std::string lineNumber = std::to_string(lineNum);
+
+        int lineNumberDetailXOffset = 3;
+        int lineNumberDetailYOffset = 3;
+
+        int yOffset = m_lineNumberWindowYOffset - lineNumberDetailYOffset + (m_cursorY * (m_graphics->GetCurrentFontHeight() + 1));
+
+        m_graphics->Img(m_LineNumberDetailLeft, m_lineNumberWindowXOffset - lineNumberDetailXOffset, yOffset);
+        for (int i = 0; i < lineNumber.size(); ++i) {
+            int offset = m_lineNumberWindowXOffset + (i * 6);
+            m_graphics->Img(m_LineNumberDetailCenter, offset, yOffset);
+        }
+        m_graphics->Img(m_LineNumberDetailRight, m_lineNumberWindowXOffset + (lineNumber.size() * 6), yOffset);
+        m_graphics->Text(lineNumber, m_lineNumberWindowXOffset, yOffset + lineNumberDetailYOffset, m_lineNumberTextColor);
+    }
+
 
     //m_graphics->RectBorder(m_textBounds->x, m_textBounds->y, m_textBounds->width, m_textBounds->height, 23);
 
@@ -190,30 +262,48 @@ void EditorState::OnKeyPressed(int key) {
         m_cursorX++;
     }
     if(key == KEY_UP){
-        if( m_cursorY > 0)
-        {
-            m_cursorY--;
-        }
-        else
-        {
-            if(m_scrollY > 0)
+        if(IsKeyDown(KEY_LEFT_SHIFT)){
+            m_scrollY -= m_height;
+            bool success = m_scrollY > 0;
+            if(!success && m_cursorY > 0) m_cursorY--;
+        }else{
+            if( m_cursorY > 0)
+            {
+                m_cursorY--;
+            }
+            else
             {
                 m_scrollY--;
             }
         }
+
+        if(m_scrollY < 0){
+            m_scrollY = 0;
+        }
+
     }
 
     if(key == KEY_DOWN )
     {
-        if(m_cursorY < std::min(m_height - 1, static_cast<int>(m_text.size()) - 1))
-        {
-            m_cursorY++;
-        }
-        else
-        {
-            if(m_scrollY + m_height < m_text.size())
+        if(IsKeyDown(KEY_LEFT_SHIFT)){
+            m_scrollY += m_height;
+            bool success = m_scrollY + m_height <= m_text.size() - 1;
+            if(!success && m_cursorY < std::min(m_height - 1, static_cast<int>(m_text.size()) - 1)) m_cursorY++;
+        }else{
+            if(m_cursorY < std::min(m_height - 1, static_cast<int>(m_text.size()) - 1))
+            {
+                m_cursorY++;
+            }
+            else
+            {
                 m_scrollY++;
+            }
         }
+
+        if(m_scrollY + m_height > m_text.size() - 1){
+            m_scrollY = m_text.size() - 1 - m_height;
+        }
+
     }
 
 
@@ -229,6 +319,27 @@ void EditorState::OnCharPressed(char character){
 
 }
 
+void EditorState::OnMousePressed(int button) {
+    int x = m_graphics->mouseX();
+    int y = m_graphics->mouseY();
+
+    if(Utilities::RectContainsPoint(m_textBounds, x, y)){
+        x -= m_textWindowXOffset;
+        y -= m_textWindowYOffset;
+
+        x /= m_charWidth;
+        y /= m_charHeight;
+
+        m_cursorX = x;
+        m_cursorY = y;
+
+        m_cursorVisible = true;
+        m_cursorBlinkTimer = 0;
+        m_dirty = true;
+    }
+
+}
+
 void EditorState::Clear() {
     for (int i = 0; i < m_width * m_height; ++i) {
         m_characterBuffer[i] = ' ';
@@ -236,6 +347,7 @@ void EditorState::Clear() {
         m_backgroundIndexBuffer[i] = m_baseBackgroundColor;
     }
 }
+
 
 void EditorState::Text(const std::string &text, int x, int y, int fg, int bg) {
     for (int i = 0; i < text.size(); ++i) {
@@ -253,7 +365,6 @@ void EditorState::Text(const std::string &text, int x, int y, int fg, int bg) {
 
     }
 }
-
 
 void EditorState::LoadStringToBuffer(const std::string &text) {
     m_text.clear();
@@ -273,7 +384,7 @@ void EditorState::LoadStringToBuffer(const std::string &text) {
     for (const auto& line : lines) {
         m_text.push_back(line);
     }
-    
+
     m_dirty = true;
 }
 

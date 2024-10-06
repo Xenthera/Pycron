@@ -102,7 +102,7 @@ class Particles(Scene):
             if(p.size < 0):
                 self.waterParts.remove(p)
 
-        
+
 
         if(mouse(0)):
             rad = sin(self.counter * 0.01) * 50
@@ -151,7 +151,3 @@ class Particles(Scene):
         # triangle(mouseX, mouseY, x2, y2, x3, y3, 9)
 
         # lineTri(mouseX, mouseY, x2, y2, x3, y3, 8)
-        
-
-
-

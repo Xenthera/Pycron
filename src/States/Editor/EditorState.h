@@ -20,6 +20,7 @@ public:
     void OnExit() override;
     void OnKeyPressed(int key) override;
     void OnCharPressed(char character) override;
+    void OnMousePressed(int button) override;
 
 private:
     pkpy::VM* m_vm;
@@ -28,6 +29,10 @@ private:
 
     // Editor images
     PycronImage* m_editorFrame;
+
+    PycronImage* m_LineNumberDetailLeft;
+    PycronImage* m_LineNumberDetailCenter;
+    PycronImage* m_LineNumberDetailRight;
 
     // Size of the character in pixels
     uint8_t m_charWidth, m_charHeight;

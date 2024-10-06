@@ -33,6 +33,7 @@ public:
 
     void OnKeyPressed(int key);
     void OnCharPressed(char c);
+    void OnMousePressed(int button);
 
     void RequestLoadGame();
     void RequestRunGame();

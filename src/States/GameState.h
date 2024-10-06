@@ -16,6 +16,7 @@ public:
     void OnExit() override;
     void OnKeyPressed(int key) override;
     void OnCharPressed(char character) override;
+    void OnMousePressed(int button) override;
 
 
 private:

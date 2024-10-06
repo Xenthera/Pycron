@@ -15,7 +15,6 @@ StateManager::~StateManager() {
     m_currentState = nullptr;
     delete m_gameState;
     delete m_editorState;
-    delete m_graphics;
 }
 
 
@@ -73,5 +72,9 @@ void StateManager::OnKeyPressed(int key) {
 
 void StateManager::OnCharPressed(char c) {
     m_currentState->OnCharPressed(c);
+}
+
+void StateManager::OnMousePressed(int button) {
+    m_currentState->OnMousePressed(button);
 }
 

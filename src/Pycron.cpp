@@ -58,6 +58,12 @@ void Pycron::StartGameLoop() {
                 m_stateManager->OnKeyPressed(key);
             }
         }
+
+        for (int button = MouseButton::MOUSE_BUTTON_LEFT; button < MouseButton::MOUSE_BUTTON_BACK; ++button) {
+            if(IsMouseButtonPressed(button)){
+                m_stateManager->OnMousePressed(button);
+            }
+        }
     }
 }
 

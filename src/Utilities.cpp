@@ -3,6 +3,7 @@
 //
 
 #include "Utilities.h"
+
 namespace Utilities {
     Color ColorFromHex(int hexValue) {
         // Extract red, green, blue, and alpha components from the hexadecimal value
@@ -17,5 +18,9 @@ namespace Utilities {
 
         // Create and return the color
         return ColorFromNormalized({ rf, gf, bf, 1.0f }); // Alpha is set to 1.0 (fully opaque)
+    }
+
+    bool RectContainsPoint(pycron::Rectangle* r, int x, int y){
+        return x >= r->x && x <= r->x + r->width && y >= r->y && y <= r->y + r->height;
     }
 }

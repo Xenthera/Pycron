@@ -102,3 +102,7 @@ void GameState::OnCharPressed(char character) {
 
 }
 
+void GameState::OnMousePressed(int button) {
+
+}
+
