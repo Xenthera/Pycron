@@ -64,7 +64,23 @@ void Graphics::draw(StateManager* stateManager) {
 void Graphics::copyBufferToGPU() {
     Color* pixel_data = LoadImageColors(m_virtualScreenImageBuffer);
     for (int i = 0; i < m_screenWidth * m_screenHeight; ++i) {
-        pixel_data[i] = GetColor(m_paletteByID[m_virtualScreenColorBuffer[i]]);
+        uint32_t rgb = m_paletteByID[m_virtualScreenColorBuffer[i]];
+        uint8_t r = rgb >> 16 & 0xFF;
+        uint8_t g = rgb >> 8 & 0xFF;
+        uint8_t b = rgb & 0xFF;
+
+        double dR = (double)r * 0.2126;
+        double dG = (double)g * 0.7152;
+        double dB = (double)b * 0.0722;
+
+        int gray = (int)(dR + dG + dB);
+        double naiveGray = (r + g + b) / 3.0;
+        //gray = (int)naiveGray;
+        unsigned int out = 255;
+        out |= gray << 8;
+        out |= gray << 16;
+        out |= gray << 24;
+        pixel_data[i] = GetColor(rgb);
     }
     UpdateTexture(m_virtualScreen.texture, pixel_data);
     UnloadImageColors(pixel_data);
@@ -181,7 +197,7 @@ void Graphics::bindMethods(pkpy::VM *vm) {
         return vm->None;
     });
 
-    vm->bind(vm->builtins, "get_pixel(x: int, y: int) -> int", [this](pkpy::VM* vm, pkpy::ArgsView args){
+    vm->bind(vm->builtins, "getPixel(x: int, y: int) -> int", [this](pkpy::VM* vm, pkpy::ArgsView args){
         float x = pkpy::py_cast<float>(vm, args[0]);
         float y = pkpy::py_cast<float>(vm, args[1]);
 
@@ -197,13 +213,23 @@ void Graphics::bindMethods(pkpy::VM *vm) {
         return vm->None;
     });
 
-    vm->bind(vm->builtins, "rectangle(x: int, y: int, width: int, height: int, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){
+    vm->bind(vm->builtins, "rect(x: int, y: int, width: int, height: int, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){
         float x = pkpy::py_cast<float>(vm, args[0]);
         float y = pkpy::py_cast<float>(vm, args[1]);
         float width = pkpy::py_cast<float>(vm, args[2]);
         float height = pkpy::py_cast<float>(vm, args[3]);
         float paletteIndex = pkpy::py_cast<float>(vm, args[4]);
         this->Rect(x, y, width, height, paletteIndex);
+        return vm->None;
+    });
+
+    vm->bind(vm->builtins, "rectBorder(x: int, y: int, width: int, height: int, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){
+        float x = pkpy::py_cast<float>(vm, args[0]);
+        float y = pkpy::py_cast<float>(vm, args[1]);
+        float width = pkpy::py_cast<float>(vm, args[2]);
+        float height = pkpy::py_cast<float>(vm, args[3]);
+        float paletteIndex = pkpy::py_cast<float>(vm, args[4]);
+        this->RectBorder(x, y, width, height, paletteIndex);
         return vm->None;
     });
 
@@ -388,14 +414,24 @@ void Graphics::RectBorder(int x, int y, int width, int height, int paletteIndex)
 }
 
 void Graphics::Text(const std::string& s, int x, int y, int paletteIndex) {
+    int currentX = 0;
+    int currentY = y;
 
     for (int i = 0; i < s.size(); ++i) {
         char c = s[i];
-        std::string bitData = m_currentFont->GetCharData((int)c);
-        for (int j = 0; j < bitData.size(); ++j) {
-            if(bitData[j] == '1')
-                Pixel(x + (j % m_currentFont->GetWidth()) + ((m_currentFont->GetWidth() + 1) * i), y + (j / m_currentFont->GetWidth()), paletteIndex);
+        // Handle new lines
+        if(c != '\n') {
+            std::string bitData = m_currentFont->GetCharData((int) c);
+            for (int j = 0; j < bitData.size(); ++j) {
+                if (bitData[j] == '1'){
+                    Pixel(x + (j % m_currentFont->GetWidth()) + ((m_currentFont->GetWidth() + 1) * currentX),currentY + (j / m_currentFont->GetWidth()), paletteIndex);
+                    }
 
+            }
+            currentX++;
+        }else{
+            currentX = 0;
+            currentY += m_currentFont->GetHeight() + 1;
         }
     }
 }

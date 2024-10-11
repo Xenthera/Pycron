@@ -1537,4 +1537,3 @@ class Particles(Scene):
         # triangle(mouseX, mouseY, x2, y2, x3, y3, 9)
 
         # lineTri(mouseX, mouseY, x2, y2, x3, y3, 8)
-

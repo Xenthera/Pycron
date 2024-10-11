@@ -71,6 +71,7 @@ void Pycron::bindMethods() {
     m_vm->bind(m_vm->builtins, "rnd(min: float, max: float) -> int", getRandomNumber);
     m_vm->bind(m_vm->builtins, "sin(num: float) -> float", getSin);
     m_vm->bind(m_vm->builtins, "cos(num: float) -> float", getCos);
+    m_vm->bind(m_vm->builtins, "tan(num: float) -> float", getTan);
     m_vm->bind(m_vm->builtins, "fps() -> int", getFPS);
     m_vm->bind(m_vm->builtins, "keyp(keycode: int) -> bool", getKeyPressed);
     m_vm->bind(m_vm->builtins, "key(keycode: int) -> bool", getKeyDown);
@@ -135,6 +136,11 @@ pkpy::PyObject* Pycron::getSin(pkpy::VM* vm, pkpy::ArgsView args) {
 pkpy::PyObject* Pycron::getCos(pkpy::VM* vm, pkpy::ArgsView args) {
     auto num = pkpy::py_cast<double>(vm, args[0]);
     return pkpy::py_var(vm, cos(num));
+}
+
+pkpy::PyObject* Pycron::getTan(pkpy::VM* vm, pkpy::ArgsView args) {
+    auto num = pkpy::py_cast<double>(vm, args[0]);
+    return pkpy::py_var(vm, tan(num));
 }
 
 pkpy::PyObject* Pycron::getFPS(pkpy::VM* vm, pkpy::ArgsView args) {

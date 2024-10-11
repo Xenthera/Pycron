@@ -77,7 +77,7 @@ class Triangles(Scene):
             y = rnd(0, height)
             c = 0
             if(rnd(0,9) < 5):
-                c = get_pixel(x -3 ,y-3)
+                c = getPixel(x -3 ,y-3)
             else:
                 c = 0
 

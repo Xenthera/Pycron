@@ -14,7 +14,7 @@
 EditorState::EditorState(pkpy::VM *vm, Graphics *graphics) : m_vm(vm), m_graphics(graphics){
     m_pythonTokenizer = new PythonTokenizer();
 
-    std::string randomSource = Pycron::loadFileToString("../python/particles.py");
+    std::string randomSource = Pycron::loadFileToString("../python/squares.py");
 
     m_editorFrame = m_graphics->loadImage("../resources/EditorFrame.png");
     m_LineNumberDetailLeft = m_graphics->loadImage("../resources/LineNumberDetailLeft.png");
@@ -202,6 +202,9 @@ void EditorState::Draw() {
 
     // Line Numbers
     for (int i = 0; i < m_height; ++i) {
+
+        if(i + m_scrollY >= m_text.size()) return;
+
         int lineNum = i + m_scrollY + 1;
         std::string lineNumber = std::to_string(lineNum);
         int delta = std::max(0, 3 - (int)lineNumber.size());
@@ -304,6 +307,10 @@ void EditorState::OnKeyPressed(int key) {
             m_scrollY = m_text.size() - 1 - m_height;
         }
 
+        if(m_scrollY < 0){
+            m_scrollY = 0;
+        }
+
     }
 
 
@@ -330,8 +337,10 @@ void EditorState::OnMousePressed(int button) {
         x /= m_charWidth;
         y /= m_charHeight;
 
-        m_cursorX = x;
-        m_cursorY = y;
+        m_cursorY = std::min((int)m_text.size() - 1, y);
+        m_cursorX = std::min((int)m_text[m_cursorY].size(), x);
+
+
 
         m_cursorVisible = true;
         m_cursorBlinkTimer = 0;

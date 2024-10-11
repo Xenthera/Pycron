@@ -30,13 +30,9 @@ void StateManager::ChangeState(StateManager::StateType state) {
     }
 
     if(m_currentState){
-        if(m_currentState == m_gameState){
-            m_currentState->OnEnter();
-            if(m_gameState->m_errorThrown){
-                m_pycron->m_graphics->Text(m_gameState->m_previousError, 2, 2, 59);
-            }
-        }else{
-            m_currentState->OnEnter();
+        m_currentState->OnEnter();
+        if(m_currentState == m_gameState && m_gameState->m_errorThrown){
+            m_pycron->m_graphics->Text(m_gameState->m_previousError, 2, 2, 4);
         }
     }
 }
@@ -52,13 +48,8 @@ void StateManager::Draw() {
     }
 
     if(m_currentState){
-        if(m_currentState == m_gameState){
-            if(m_gameState->m_errorThrown){
-                m_pycron->m_graphics->Text(m_gameState->m_previousError, 2, 2, 59);
-            }
-            else{
-                m_currentState->Draw();
-            }
+        if(m_currentState == m_gameState && m_gameState->m_errorThrown){
+            m_pycron->m_graphics->Text(m_gameState->m_previousError, 2, 2, 4);
         }
         else{
             m_currentState->Draw();

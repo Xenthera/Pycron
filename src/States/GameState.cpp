@@ -26,6 +26,7 @@ void GameState::Draw() {
 }
 
 void GameState::OnEnter() {
+    m_graphics->Clear(0);
     PreProcessScripts();
 }
 
@@ -49,9 +50,6 @@ void GameState::PreProcessScripts() {
         pkpy::CodeObject_ code = m_vm->compile(main, MAIN_FILE, pkpy::EXEC_MODE, false);
         m_vm->_exec(code, m_vm->_main);
         m_updateFunction = m_vm->eval("update");
-//        if(m_updateFunction == nullptr){
-//            m_previousError = "";
-//        }
     }catch(pkpy::Exception e){
         m_previousError = e.summary();
         std::cout << e.summary() << "\n";
@@ -85,6 +83,7 @@ void GameState::loadPythonModules(std::unordered_map<std::string, std::string> &
     for(const auto& pair : fileContents){
         try{
             if(pair.first != MAIN_FILE){
+                // parse out file name as module ex: test.py is test
                 size_t pos = pair.first.find_last_of(".");
                 if(pos == std::string::npos || pos == 0){
                     throw pkpy::Exception("Invalid file name");

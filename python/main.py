@@ -1,6 +1,9 @@
 from scene import Scene
 from particles import Particles
 from triangles import Triangles
+from squares import Squares
+from blobs import Blobs
+from mechanical import Mechanical
 
 # Palette class (inherits from scene)
 class Palette(Scene):
@@ -17,7 +20,7 @@ class Palette(Scene):
 
         for i in range(8):
             for j in range(8):
-                rectangle(10 + (i * 20), 10 + (j * 20), 18, 18, (j * 8 + i))
+                rect(10 + (i * 20), 10 + (j * 20), 18, 18, (j * 8 + i))
                 text(str(j * 8 + i), 11 + (i * 20), 10 + (j * 20), 63)
 
 class RGBTest(Scene):
@@ -26,7 +29,7 @@ class RGBTest(Scene):
         self.title = "RGB To Palette"
 
 
-scenes = [Particles(), Triangles(), Palette()]
+scenes = [Particles(), Triangles(), Palette(), Squares(), Blobs()]
 current_scene = 0
 
 
@@ -50,10 +53,3 @@ def update():
     if(not scenes[current_scene].paused):
         scenes[current_scene].update()
     scenes[current_scene].draw()
-
-
-    
-
-
-
-

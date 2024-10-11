@@ -36,6 +36,7 @@ public:
     static pkpy::PyObject* getRandomNumber(pkpy::VM* vm, pkpy::ArgsView args);
     static pkpy::PyObject* getSin(pkpy::VM* vm, pkpy::ArgsView args);
     static pkpy::PyObject* getCos(pkpy::VM* vm, pkpy::ArgsView args);
+    static pkpy::PyObject* getTan(pkpy::VM* vm, pkpy::ArgsView args);
     static pkpy::PyObject* getFPS(pkpy::VM* vm, pkpy::ArgsView args);
     static pkpy::PyObject* getKeyPressed(pkpy::VM* vm, pkpy::ArgsView args);
     static pkpy::PyObject* getKeyDown(pkpy::VM* vm, pkpy::ArgsView args);
