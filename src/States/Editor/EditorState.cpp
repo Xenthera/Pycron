@@ -14,7 +14,8 @@
 EditorState::EditorState(pkpy::VM *vm, Graphics *graphics) : m_vm(vm), m_graphics(graphics){
     m_pythonTokenizer = new PythonTokenizer();
 
-    std::string randomSource = Pycron::loadFileToString("../python/squares.py");
+    std::string randomSource = Pycron::loadFileToString("../python/particles.py");
+    //randomSource = Pycron::loadFileToString("../src/States/Editor/EditorState.cpp");
 
     m_editorFrame = m_graphics->loadImage("../resources/EditorFrame.png");
     m_LineNumberDetailLeft = m_graphics->loadImage("../resources/LineNumberDetailLeft.png");
@@ -338,7 +339,7 @@ void EditorState::OnMousePressed(int button) {
         y /= m_charHeight;
 
         m_cursorY = std::min((int)m_text.size() - 1, y);
-        m_cursorX = std::min((int)m_text[m_cursorY].size(), x);
+        m_cursorX = std::min((int)m_text[m_cursorY + m_scrollY].size(), x);
 
 
 

@@ -15,8 +15,8 @@ class Blobs(Scene):
     def draw(self):
         clear(0)
 
-        for i in range(width):
-            for j in range(height):
+        for i in range(128):
+            for j in range(128):
                 c = cos(i / 10) + (sin(j / 10) + 2)
                 #c2 = cos(i / 5) + sin(j / 5)
                 pixel(i, j, 2 * c + self.t)
