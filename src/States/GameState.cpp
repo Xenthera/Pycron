@@ -11,6 +11,7 @@
 GameState::GameState(pkpy::VM* vm, Graphics* graphics) :m_vm(vm), m_graphics(graphics){
     m_updateFunction = nullptr;
     m_previousError = "";
+
 }
 
 void GameState::Draw() {
@@ -28,10 +29,15 @@ void GameState::Draw() {
 void GameState::OnEnter() {
     m_graphics->Clear(0);
     PreProcessScripts();
+
 }
 
 void GameState::OnExit() {
+    for(const auto& pair : m_vm->_lazy_modules){
+        m_vm->_modules.del(pair.first);
+    }
     m_vm->_lazy_modules.clear();
+
     m_updateFunction = m_vm->None;
 }
 
@@ -80,6 +86,8 @@ std::unordered_map<std::string, std::string> GameState::readPythonFiles(const st
 }
 
 void GameState::loadPythonModules(std::unordered_map<std::string, std::string> &fileContents) {
+    m_vm->_lazy_modules.clear();
+
     for(const auto& pair : fileContents){
         try{
             if(pair.first != MAIN_FILE){

@@ -3,7 +3,7 @@ from particles import Particles
 from triangles import Triangles
 from squares import Squares
 from blobs import Blobs
-from mechanical import Mechanical
+from threeD import ThreeD
 
 # Palette class (inherits from scene)
 class Palette(Scene):
@@ -29,10 +29,8 @@ class RGBTest(Scene):
         self.title = "RGB To Palette"
 
 
-scenes = [Particles(), Triangles(), Palette(), Squares(), Blobs()]
+scenes = [  ThreeD(), Particles(), Squares(), Triangles(), Palette(),  Blobs()]
 current_scene = 0
-
-
 
 KEY_T = 84
 
@@ -53,3 +51,6 @@ def update():
     if(not scenes[current_scene].paused):
         scenes[current_scene].update()
     scenes[current_scene].draw()
+
+    text("T to change scene", 255, 1,31)
+

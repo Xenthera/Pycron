@@ -14,7 +14,7 @@
 EditorState::EditorState(pkpy::VM *vm, Graphics *graphics) : m_vm(vm), m_graphics(graphics){
     m_pythonTokenizer = new PythonTokenizer();
 
-    std::string randomSource = Pycron::loadFileToString("../python/particles.py");
+    std::string randomSource = Pycron::loadFileToString("../python/threeD.py");
     //randomSource = Pycron::loadFileToString("../src/States/Editor/EditorState.cpp");
 
     m_editorFrame = m_graphics->loadImage("../resources/EditorFrame.png");
