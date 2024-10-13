@@ -29,6 +29,7 @@ class ThreeD(Scene):
         self.points = []
 
         self.gradient = [4, 8, 6, 15, 18, 19, 26, 25, 24, 23, 16, 23, 22, 7, 5]
+        self.gradient = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
     def update(self):
         self.t += 0.00002
@@ -122,8 +123,13 @@ class ThreeD(Scene):
         screen_x1, screen_y1 = self.project_point(x1, y1, z1, focal_length, screen_width, screen_height, angle_x, angle_y, angle_z,  translate_x, translate_y, translate_z)
         screen_x2, screen_y2 = self.project_point(x2, y2, z2, focal_length, screen_width, screen_height, angle_x, angle_y, angle_z,  translate_x, translate_y, translate_z)
 
+        screen_x12, screen_y12 = self.project_point(x1 + 5, y1, z1, focal_length, screen_width, screen_height, angle_x, angle_y, angle_z,  translate_x, translate_y, translate_z)
+        screen_x22, screen_y22 = self.project_point(x2 + 5, y2, z2, focal_length, screen_width, screen_height, angle_x, angle_y, angle_z,  translate_x, translate_y, translate_z)
+
         # Use the renderer to draw the line on the screen
-        draw_line(int(screen_x1) / 4, int(screen_y1) / 4, int(screen_x2) / 4, int(screen_y2) / 4, color)
+
+        line(screen_x1 / 4, screen_y1 / 4, screen_x2 / 4, screen_y2 / 4, color)
+
 
     def render_scene(self, focal_length, screen_width, screen_height, angle_x, angle_y, angle_z,  translate_x, translate_y, translate_z):
         """Renders the 3D lines in the scene with perspective projection and Z-sorting."""

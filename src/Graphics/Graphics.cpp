@@ -245,6 +245,16 @@ void Graphics::bindMethods(pkpy::VM *vm) {
         return vm->None;
     });
 
+    vm->bind(vm->builtins, "line(x1: int, y1: int, x2: int, y2: int, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){
+        float x1 = pkpy::py_cast<float>(vm, args[0]);
+        float y1 = pkpy::py_cast<float>(vm, args[1]);
+        float x2 = pkpy::py_cast<float>(vm, args[2]);
+        float y2 = pkpy::py_cast<float>(vm, args[3]);
+        float paletteIndex = pkpy::py_cast<float>(vm, args[4]);
+        this->Line(x1, y1, x2, y2, paletteIndex);
+        return vm->None;
+    });
+
     vm->bind(vm->builtins, "text(t: string, x: int, y: int, color: int)", [this](pkpy::VM* vm, pkpy::ArgsView args){
         pkpy::PyObject* func_str = vm->builtins->attr("str");
         pkpy::PyObject* result = vm->call(func_str,  args[0]);
