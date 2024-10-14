@@ -269,9 +269,23 @@ void EditorState::OnKeyPressed(int key) {
             m_cursorX--;
             m_lastFurthestColumn = m_cursorX;
         } else {
-            m_cursorY--;
-            m_cursorX = (int)m_text[m_scrollY + m_cursorY].size();
-            m_lastFurthestColumn = m_cursorX;
+            if( m_cursorY > 0)
+            {
+                m_cursorY--;
+            }
+            else
+            {
+                m_scrollY--;
+            }
+
+            if(m_scrollY < 0){
+                m_scrollY = 0;
+            }else{
+
+                m_cursorX = (int)m_text[m_scrollY + m_cursorY].size();
+                m_lastFurthestColumn = m_cursorX;
+            };
+
         }
 
     }
@@ -282,8 +296,23 @@ void EditorState::OnKeyPressed(int key) {
         } else {
             m_cursorX = 0;
             m_lastFurthestColumn = m_cursorX;
-            m_cursorY++;
-            // TODO: Implement scroll handling as it's own function so this can scroll and/or move the cursor as well. Behavior should be identical to using the down/up arrow.
+
+            if(m_cursorY < std::min(m_height - 1, static_cast<int>(m_text.size()) - 1))
+            {
+                m_cursorY++;
+            }
+            else
+            {
+                m_scrollY++;
+            }
+
+            if(m_scrollY + m_height > m_text.size() - 1){
+                m_scrollY = m_text.size() - 1 - m_height;
+            }
+
+            if(m_scrollY < 0){
+                m_scrollY = 0;
+            }
         }
     }
 
@@ -333,10 +362,6 @@ void EditorState::OnKeyPressed(int key) {
         if(m_scrollY < 0){
             m_scrollY = 0;
         }
-
-
-
-
     }
 
     int currentLineLength = (int)m_text[m_scrollY + m_cursorY].size();
