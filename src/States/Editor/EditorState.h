@@ -87,6 +87,8 @@ private:
     int m_scrollX;
     int m_scrollY;
 
+    int m_lastFurthestColumn;
+
     bool m_dirty;
 
     bool m_drawShadows;

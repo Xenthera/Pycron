@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <raylib.h>
 #include "EditorState.h"
+#include <math.h>
 #include "../../Utilities.h"
 
 
@@ -62,6 +63,8 @@ EditorState::EditorState(pkpy::VM *vm, Graphics *graphics) : m_vm(vm), m_graphic
 
     m_scrollX = 0;
     m_scrollY = 0;
+
+    m_lastFurthestColumn = 0;
 
     m_cursorBlinkTimer = 0;
     m_cursorBlinkInterval = 0.5;
@@ -259,12 +262,31 @@ void EditorState::OnExit() {
 }
 
 void EditorState::OnKeyPressed(int key) {
-    if(key == KEY_LEFT && m_cursorX > 0){
-        m_cursorX--;
+
+
+    if (key == KEY_LEFT) {
+        if (m_cursorX > 0) {
+            m_cursorX--;
+            m_lastFurthestColumn = m_cursorX;
+        } else {
+            m_cursorY--;
+            m_cursorX = (int)m_text[m_scrollY + m_cursorY].size();
+            m_lastFurthestColumn = m_cursorX;
+        }
+
     }
-    if(key == KEY_RIGHT && m_cursorX < m_width - 1){
-        m_cursorX++;
+    if (key == KEY_RIGHT) {
+        if (m_cursorX < std::min(m_width - 1, (int) m_text[m_scrollY + m_cursorY].size())) {
+            m_cursorX++;
+            m_lastFurthestColumn = m_cursorX;
+        } else {
+            m_cursorX = 0;
+            m_lastFurthestColumn = m_cursorX;
+            m_cursorY++;
+            // TODO: Implement scroll handling as it's own function so this can scroll and/or move the cursor as well. Behavior should be identical to using the down/up arrow.
+        }
     }
+
     if(key == KEY_UP){
         if(IsKeyDown(KEY_LEFT_SHIFT)){
             m_scrollY -= m_height;
@@ -312,7 +334,18 @@ void EditorState::OnKeyPressed(int key) {
             m_scrollY = 0;
         }
 
+
+
+
     }
+
+    int currentLineLength = (int)m_text[m_scrollY + m_cursorY].size();
+
+    if(currentLineLength <= m_cursorX){
+        m_cursorX = currentLineLength;
+    }else{
+        m_cursorX = std::min(m_lastFurthestColumn, currentLineLength);
+    };
 
 
     m_cursorVisible = true;
@@ -340,6 +373,8 @@ void EditorState::OnMousePressed(int button) {
 
         m_cursorY = std::min((int)m_text.size() - 1, y);
         m_cursorX = std::min((int)m_text[m_cursorY + m_scrollY].size(), x);
+
+        m_lastFurthestColumn = m_cursorX;
 
 
 
